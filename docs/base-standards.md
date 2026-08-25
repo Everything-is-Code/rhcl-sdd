@@ -59,17 +59,22 @@ Skills: `ai-specs/skills/` — see [skills-inventory.md](./skills-inventory.md).
 
 1. `enrich-us` on GitHub issue
 2. `/opsx-propose <change-name>`
-3. `/opsx-apply` → `../migration-toolkit-rhcl/`
-4. `/verify` — tests + `openspec validate` + verify-report
-5. `/code-review` — RHCL PR-style review (Major/Moderate/Minor/Nit)
-6. `/adversarial-review` — red-team (fresh session preferred)
-7. `/opsx-archive`
-8. `/commit` — PR on product repo
+3. **Product feature branch** (before first code edit in `migration-toolkit-rhcl/`):
+   - `git checkout main && git pull`
+   - `git checkout -b feature/<issue>-<change-name>` (example: `feature/41-frontend-component-split`)
+   - Record branch name in change `tasks.md` Prerequisites — **never commit implementation on `main`**
+4. `/opsx-apply` → `../migration-toolkit-rhcl/` (on the feature branch)
+5. `/verify` — tests + `openspec validate` + verify-report
+6. `/code-review` — RHCL PR-style review (Major/Moderate/Minor/Nit)
+7. `/adversarial-review` — red-team (fresh session preferred)
+8. `/opsx-archive`
+9. `/commit` — push feature branch + PR on product repo (`Closes #N`)
 
 Store id: `rhcl-sdd` — `openspec list --store rhcl-sdd`
 
 ## 7. Product conventions
 
+- **Feature branches** from `main`: `feature/<issue>-short-description` — see [development_guide.md](./development_guide.md)
 - CODEOWNERS review on substantive PRs (@pcastelo)
 - Stacked PRs: merge root first, merge `main` into feature branch
 - `NAMESPACE_PLACEHOLDER` in deploy manifests

@@ -1,3 +1,9 @@
+## Prerequisites
+
+- Issue: [#41](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/41)
+- Design: `design.md` reviewed
+- Product branch: `feature/41-frontend-component-split` (create from `main` before first `/opsx-apply` commit)
+
 ## 1. Phase 1 — AppStateContext + App.tsx cleanup
 
 - [x] 1.1 Create `frontend/src/components/AppStateContext.tsx` with `AppState` interface, `React.createContext`, `AppStateProvider` (owns `useState<AppState>` + `sessionStorage` persistence via `appStateStorage.ts`), and `useAppState()` hook. Verify: `npm run typecheck` passes.

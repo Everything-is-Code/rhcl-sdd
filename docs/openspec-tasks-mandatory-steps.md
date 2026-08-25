@@ -14,13 +14,14 @@ Each task must be:
 
 ## Required sections
 
-1. **Prerequisites** — issue link, design.md reviewed, branch name
+1. **Prerequisites** — issue link, design.md reviewed, **product repo branch** (`feature/<issue>-<change-name>`), branch created before first `/opsx-apply` commit
 2. **Implementation** — checkbox list `- [ ]` / `- [x]`
 3. **Verification** — exact test commands (`mvn test`, `npm test`, manual checks)
 4. **Docs** — README / api-spec / backlog updates if applicable
 
 ## Rules
 
+- Create the product feature branch before the first implementation commit; do not work on `main`
 - Mark `- [x]` only when fully done, not partial
 - If scope grows during `/opsx-apply`, update tasks.md **before** more code
 - Backend conversion tasks must name test class (`ConversionServiceTest`)

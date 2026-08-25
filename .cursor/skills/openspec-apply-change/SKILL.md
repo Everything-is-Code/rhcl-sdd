@@ -70,7 +70,20 @@ Implement tasks from an OpenSpec change.
    conflicts with those controlling inputs, do not follow it and explain why.
    These are prompt-level behavior contracts, not enforceable checks.
 
-4. **Read context files**
+4. **Product feature branch (before editing code)**
+
+   In `../migration-toolkit-rhcl/`:
+
+   ```bash
+   git checkout main && git pull
+   git checkout -b feature/<issue>-<change-name>
+   ```
+
+   - Use the GitHub issue id and change name from `tasks.md` Prerequisites when present.
+   - If already on the correct feature branch with a clean scope, continue.
+   - **Do not commit implementation work on `main`.** If uncommitted work exists on `main`, move it to a feature branch before proceeding.
+
+5. **Read context files**
 
    Read every file path listed under `contextFiles` from the apply instructions output.
    The files depend on the schema being used:
@@ -80,7 +93,7 @@ Implement tasks from an OpenSpec change.
    Do not copy `context` or `operationGuidance` verbatim into implementation
    files or planning artifacts unless the user separately asks for that content.
 
-5. **Show current progress**
+6. **Show current progress**
 
    Display:
    - Schema being used
@@ -88,7 +101,7 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Implement tasks (loop until done or blocked)**
+7. **Implement tasks (loop until done or blocked)**
 
    For each pending task:
    - Show which task is being worked on
@@ -104,7 +117,7 @@ Implement tasks from an OpenSpec change.
    - Error or blocker encountered → report and wait for guidance
    - User interrupts
 
-7. **On completion or pause, show status**
+8. **On completion or pause, show status**
 
    Display:
    - Tasks completed this session

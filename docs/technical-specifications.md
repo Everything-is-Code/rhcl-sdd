@@ -95,17 +95,19 @@ Test commands: see [`.cursor/rules/testing-standards.mdc`](../migration-toolkit-
 
 Layering is enforced by ArchUnit (`backend/src/test/architect/.../ArchitectureTest.java`): `controller â†’ service â†’ client`; controllers must not depend on `client` directly; only `service`/`model` may be `*Service`; entities must not depend on `controller`. See [`testing-standards.mdc`](../migration-toolkit-rhcl/.cursor/rules/testing-standards.mdc) for the full rule list.
 
-**Frontend layout** (`frontend/src/`, 39 files incl. tests):
+**Frontend layout** (`frontend/src/`):
 
 | Folder | Role |
 |---|---|
-| `pages/` | One PatternFly page component per route (10 routes) + co-located non-JSX business logic (`compatibilityChecks.ts`, `clusterCapabilityUi.ts`) |
-| `api/` | `client.ts` (Axios instance + per-domain functions), `types.ts` (all request/response interfaces) |
+| `components/` | Domain-grouped UI (`import/`, `history/`, `conversion/`, `connection/`, `api/`, `yaml/`) plus `AppStateContext`, `LangSwitcher`, `RouteErrorBoundary` |
+| `pages/` | Thin orchestrators per route (<200 lines); own API calls and `useAppState()` writes |
+| `api/` | `client.ts` (Axios instance + per-domain functions), `types.ts` (API request/response interfaces only) |
 | `locales/` | `en.json` / `ja.json` (react-i18next resources) |
 | `styles/` | `pfTokens.ts` (PatternFly CSS-var wrappers), `shared.module.css` |
-| `utils/` | Pure helpers (`appStateStorage.ts`, `fixHttpRoutePort.ts`, `timezone.ts`) |
+| `utils/` | Pure helpers (`apiError.ts`, `appStateStorage.ts`, `supportedPolicies.ts`, `clusterCapabilityUi.ts`, `fixHttpRoutePort.ts`, `timezone.ts`) |
+| `test/` | Vitest setup (`setup.ts`) |
 
-No `components/` or `hooks/` folder exists â€” small subcomponents are co-located inside their page file. Full conventions: [`frontend-standards.mdc`](../migration-toolkit-rhcl/.cursor/rules/frontend-standards.mdc).
+CSS Modules co-locate with components (e.g. `components/import/import.module.css`). Page-only logic without JSX: `pages/compatibilityChecks.ts`. Full conventions: [`frontend-standards.mdc`](../migration-toolkit-rhcl/.cursor/rules/frontend-standards.mdc).
 
 **API surface**: see [`README.md#api-reference`](../migration-toolkit-rhcl/README.md#api-reference) for the full endpoint table; Swagger UI at `/q/swagger-ui`.
 
@@ -139,7 +141,7 @@ AppSettings:         settings_key (PK), value (TEXT), updatedAt   -- generic k/v
 
 ### 5.2 Testing structure
 
-Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/rules/testing-standards.mdc`](../migration-toolkit-rhcl/.cursor/rules/testing-standards.mdc). Summary: JUnit5 + REST-assured + Mockito + H2 for backend, ArchUnit for layering, Playwright for E2E; Vitest for frontend logic/util tests only (**no React component tests exist today**).
+Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/rules/testing-standards.mdc`](../migration-toolkit-rhcl/.cursor/rules/testing-standards.mdc). Summary: JUnit5 + REST-assured + Mockito + H2 for backend, ArchUnit for layering, Playwright for E2E; Vitest for frontend utils/API mocks + minimal RTL smoke (`*.test.tsx` with jsdom). Full component coverage tracked in [#172](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/172).
 
 ### 5.3 Naming conventions
 
@@ -158,7 +160,7 @@ Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/ru
 
 ### 5.4 Git workflow
 
-- Default branch: `main`. Branch from `main` per issue/feature.
+- Default branch: `main`. Branch from `main` per issue/feature: `feature/<issue>-short-description` (see [development_guide.md](./development_guide.md)).
 - **Conventional Commits**: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:` â€” see [`CONTRIBUTING.md`](../migration-toolkit-rhcl/CONTRIBUTING.md).
 - Keep PRs focused; prefer review slices under ~400 authored lines. Link issues (`Closes #â€¦`).
 - Review required from [`.github/CODEOWNERS`](.github/CODEOWNERS) (`@pcastelo`, `@fmenesesg`). CI must be green before merge.
@@ -169,7 +171,7 @@ Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/ru
 
 - Controllers/services are generally single-purpose and thin. `ConversionService` is now a thin orchestrator (~175 lines) that builds `ConversionContext` and invokes `ResourceGeneratorRegistry`; YAML generation lives in `service/generator/` and `service/generator/contributor/` ([#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40), branch `feature/conversion-strategy-registry`, pending merge).
 - The rest of the backend follows the layering ArchUnit enforces (dependency inversion between layers is structurally guaranteed, not just convention).
-- Frontend pages are not further decomposed (no extraction of subcomponents into their own files) â€” acceptable at current size, but watch pages growing past ~500 lines (`ImportPage.tsx`, `ConnectionPage.tsx` are already large).
+- Frontend pages are orchestrators under `pages/` with subcomponents in `components/<domain>/` ([#41](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/41), PR [#191](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/191) pending merge). `AppState` lives in `AppStateContext`; shared errors in `utils/apiError.ts`.
 
 ### 5.6 Design patterns â€” current and planned
 
@@ -178,7 +180,8 @@ Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/ru
 | Repository (implicit) | Panache active-record entities (`ProjectEntity.findLatestByServiceId`, etc.) |
 | Cache-aside (manual) | `ThreeScaleExportService`'s `ConcurrentHashMap` + TTL caches (`exportCache`, `backendCatalogCache`, `applicationsCache`); keys include a SHA-256 token fingerprint to prevent cross-tenant cache leaks |
 | Request coalescing | `ClusterVersionService`'s `ConcurrentHashMap<String, CompletableFuture<...>>` collapses concurrent detects into one in-flight probe |
-| Error boundary | `App.tsx`'s `RouteErrorBoundary` (React class component) |
+| Error boundary | `components/RouteErrorBoundary.tsx` wraps `<Routes>` in `App.tsx` |
+| React Context | `AppStateContext` + `useAppState()` for workflow state (replaces prop drilling) |
 | Strategy + Registry | `ResourceGenerator` per output file + `ResourceGeneratorRegistry` (CDI); orchestrator delegates via `convert()` â€” [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
 | Collector/Contributor | `HttpRouteContributor`, `AuthPolicyContributor`, `SecretContributor` against shared builders for multi-policy YAML files â€” [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
 | Readme notes collector | `ReadmeSupport.build(..., ReadmeNotes)` replaces growing `buildReadme` positional args â€” overlaps [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
@@ -236,14 +239,14 @@ Gaps identified while writing this document, prioritized. Items already tracked 
 | 3 | Backend performance | Parallelize bulk convert, fix N+1 3scale calls, expose backend pagination in `HistoryPage` | [#169](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/169) |
 | 4 | Policy coverage | Implement the 19 recognized-but-unconverted 3scale policies | [#149](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/149) (+ 19 child issues) |
 | 5 | `generateReadme` signature | ~~Positional note args~~ **Addressed** via `ReadmeSupport` + `ReadmeNotes` collector on #40 branch — confirm closure of [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) on merge | [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
-| 6 | Frontend testing | Add `@testing-library/react` + `jsdom`; currently 0% of React components are tested (only pure-logic/util tests exist) | New â€” not yet tracked |
-| 7 | Frontend error handling | Extract the duplicated `apiErrorMessage(e, fallback)` helper into `frontend/src/utils/apiError.ts` | New â€” not yet tracked |
+| 6 | Frontend testing | ~~Add `@testing-library/react` + `jsdom`~~ **Partial on #41 branch** — utils + `AppStateContext` + smoke RTL; full coverage in [#172](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/172) | [#172](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/172) |
+| 7 | Frontend error handling | ~~Extract `apiErrorMessage`~~ **Done on #41 branch** (`frontend/src/utils/apiError.ts`) — merge PR [#191](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/191) | [#41](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/41) |
 | 8 | Data model | Use `@Enumerated(EnumType.STRING)` for `status`/`source` instead of free-form `String`; consider native `jsonb` for `failureDetails`/`exportedYaml` | New â€” not yet tracked |
 | 9 | Backend security | Consider whether the tool ever runs outside a trusted network; if so, add an auth layer in front of the backend's own API (today it has none â€” it only proxies caller-supplied 3scale/cluster credentials) | New â€” not yet tracked |
 | 10 | Form validation | Once a 3rd/4th frontend form repeats the same manual-`if` pattern, extract a small shared validation helper rather than duplicating it again | New â€” not yet tracked |
-| 11 | Documentation | ~~Revisit after #40~~ **Updated** `conversion-architecture.md`, this file, `AGENTS.md` on verify (2026-08-25); revisit on error-handling envelope change (#2) | Partially addressed |
+| 11 | Documentation | ~~Revisit after #40~~ **Updated** for #40 + #41 frontend split (2026-08-25); revisit on error-handling envelope change (#2) | Partially addressed |
 
 ---
 
-*Generated from a direct audit of `backend/src` and `frontend/src` on 2026-08-20. Re-run the audit after major refactors (#40, #169) to keep this document accurate.*
+*Generated from audits of `backend/src` and `frontend/src`. Last major frontend update: #41 (`frontend-component-split`, PR #191 pending). Re-run after #169 / backend envelope work.*
 

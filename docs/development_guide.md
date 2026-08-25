@@ -70,8 +70,9 @@ openspec new change my-change --store migration-toolkit-sdd
 
 ## Git Conventions
 
+- **Before `/opsx-apply`**: in `migration-toolkit-rhcl`, create `feature/<issue>-<change-name>` from `main` — never commit implementation on `main`
 - Branch from `main`: `feature/<issue>-short-description`
-- Reference GitHub issues in commits and PRs
+- Reference GitHub issues in commits and PRs (`Closes #N`)
 - Never amend after PR is open; commit forward
 - Tests in same PR as code
 - No secrets in commits

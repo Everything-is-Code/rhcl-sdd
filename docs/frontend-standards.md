@@ -1,5 +1,5 @@
 ---
-description: Frontend standards — React 18, PatternFly 5, Vite 4, TypeScript strict, Vitest (no component tests yet).
+description: Frontend standards — React 18, PatternFly 5, Vite 4, TypeScript strict, Vitest + minimal RTL.
 globs: ["../migration-toolkit-rhcl/frontend/**"]
 alwaysApply: true
 ---
@@ -18,20 +18,24 @@ alwaysApply: true
 | Routing | react-router-dom 6 |
 | i18n | i18next / react-i18next (`en`, `ja`) |
 | HTTP | Axios (`frontend/src/api/client.ts`) |
-| Tests | Vitest, ESLint 9 flat config |
+| Tests | Vitest, ESLint 9 flat config, `@testing-library/react` + jsdom (smoke) |
 | Node | **22** (matches `frontend/Dockerfile.ci`) |
 
-## Structure (39 files — no `components/` or `hooks/`)
+## Structure
 
 ```
 frontend/src/
-  pages/     One PatternFly page per route; subcomponents co-located in same file
-             Sibling *.ts for testable logic (compatibilityChecks.ts, clusterCapabilityUi.ts)
-  api/       client.ts (Axios + domain APIs), types.ts (all interfaces)
-  locales/   en.json, ja.json — smoke test enforces parity
-  styles/    pfTokens.ts, shared.module.css
-  utils/     appStateStorage.ts, fixHttpRoutePort.ts, timezone.ts
+  components/   Domain-grouped UI + AppStateContext, LangSwitcher, RouteErrorBoundary
+                import/, history/, conversion/, connection/, api/, yaml/
+  pages/        Thin orchestrators per route (<200 lines); API calls + useAppState writes
+  api/          client.ts (Axios + domain APIs), types.ts (API contracts only)
+  locales/      en.json, ja.json — smoke test enforces parity
+  styles/       pfTokens.ts, shared.module.css
+  utils/        apiError.ts, appStateStorage.ts, supportedPolicies.ts, clusterCapabilityUi.ts, …
+  test/         Vitest setup (jest-dom)
 ```
+
+Page-specific logic without JSX stays in `components/<domain>/*Utils.ts` or `pages/*.ts` (`compatibilityChecks.ts`). CSS Modules co-locate with components (`components/import/import.module.css`, etc.).
 
 ## API client
 
@@ -43,23 +47,23 @@ frontend/src/
 
 ## Components & state
 
-- `const XxxPage: React.FC<Props>` + `export default`
-- Local `useState` — no Redux/Context/Zustand
-- `AppState` prop-drilled from `App.tsx` to workflow pages
+- `const XxxPage: React.FC` orchestrates; subcomponents live under `components/<domain>/`
+- **`AppStateContext`** + `useAppState()` — workflow state; provider in `App.tsx` inside `BrowserRouter`
+- `AppState` type in `components/AppStateContext.tsx` (not `api/types.ts`)
 - `sessionStorage` via `appStateStorage.ts` — **never persist `accessToken`** (I-2/I-3 invariant)
+- Page orchestrators own API calls and `setAppState`; presentational components receive props/callbacks
 - Multi-step flow: routes + `navigate()`, not PatternFly Wizard
 
 ## Forms & errors
 
 - No zod/yup — manual `if` + boolean error state
 - Prefer PatternFly `FormHelperText`; disable submit when invalid
-- Error extraction (duplicated per page today):  
-  `e.response?.data?.error || e.response?.data?.message || e.message || fallback`
-- `RouteErrorBoundary` in `App.tsx`; `console.error` only in error boundaries
+- **`apiErrorMessage(e, fallback)`** in `utils/apiError.ts` — all pages use `catch (e: unknown)`
+- `RouteErrorBoundary` in `components/RouteErrorBoundary.tsx`; `console.error` only in error boundaries
 
 ## Styling
 
-PatternFly utilities + CSS Modules co-located with pages. Use `styles/pfTokens.ts` — no Tailwind/Sass/CSS-in-JS.
+PatternFly utilities + CSS Modules co-located with components. Use `styles/pfTokens.ts` — no Tailwind/Sass/CSS-in-JS.
 
 ## i18n
 
@@ -74,12 +78,12 @@ cd ../migration-toolkit-rhcl/frontend && npm run typecheck
 cd ../migration-toolkit-rhcl/frontend && npm test
 ```
 
-- Vitest, `environment: 'node'` — **no `@testing-library/react`** today
-- Co-located `*.test.ts` only (not `.test.tsx`)
-- Covers utils, API client mocks, locale smoke — **0% React component coverage**
+- Vitest: default `environment: 'node'` for `*.test.ts`; `jsdom` for `*.test.tsx` (`vitest.config.ts`)
+- Co-located `*.test.ts` / `*.test.tsx` next to source
+- Utils + API mocks + locale smoke + minimal RTL (`AppStateContext`, representative components)
+- Full component coverage tracked in [#172](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/172)
 
 ## Gaps (tracked in TECHNICAL_SPECIFICATIONS §7)
 
-- Shared `apiErrorMessage()` helper not yet extracted
-- Component tests not implemented
-- History page pagination UI (#169)
+- History page pagination UI ([#169](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/169))
+- Full `@testing-library/react` coverage ([#172](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/172))
