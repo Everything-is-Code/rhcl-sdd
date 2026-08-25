@@ -19,5 +19,11 @@ jobs:
       - name: Install OpenSpec CLI
         run: npm install -g @fission-ai/openspec@latest
 
+      - name: Register OpenSpec store
+        run: openspec store register . --id rhcl-sdd --yes
+
       - name: Doctor
         run: openspec doctor --store rhcl-sdd
+
+      - name: Validate specs
+        run: openspec validate --all --store rhcl-sdd
