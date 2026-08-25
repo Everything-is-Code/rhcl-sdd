@@ -1,54 +1,63 @@
 # Data Model — Migration Toolkit
 
-PostgreSQL schema managed by Flyway in `migration-toolkit-rhcl/backend/src/main/resources/db/migration/`.
+> Field-level spec: `../migration-toolkit-rhcl/.cursor/rules/data-model.mdc`  
+> Audit: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` §4
 
-## Project
+PostgreSQL via Flyway in `backend/src/main/resources/db/migration/` (**V1–V9**).
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | PK | |
-| name | string | |
-| namespace | string | Target OpenShift namespace |
-| threescaleUrl | string | Admin portal URL |
-| createdAt | timestamp | |
+## Entities (Panache/JPA)
 
-## ConversionHistory
+### ProjectEntity
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | PK | |
-| source | enum | `CONVERT` \| `IMPORT` |
-| namespace | string | Target namespace |
-| serviceId | long? | CONVERT only |
-| serviceName | string? | CONVERT only |
-| status | enum | `COMPLETED` \| `PARTIAL` \| `FAILED` |
-| compatibilityScore | number? | CONVERT only |
-| totalCount | int | Resources attempted |
-| successCount | int | Applied successfully |
-| failureCount | int | Failed resources |
-| failureDetails | JSON | `[{fileName, kind, name, error}]` |
-| exportedYaml | JSON | `{filename → yaml}` from cluster after apply |
-| yamlContent | text? | Full generated YAML (CONVERT) |
-| createdAt | timestamp | |
+| Field | Notes |
+|-------|-------|
+| id | PK |
+| name | |
+| threescaleUrl | Admin portal URL |
+| tenant | |
+| createdAt, updatedAt | |
 
-## Flyway Migrations
+### ConversionHistoryEntity
 
-| Version | Purpose |
-|---------|---------|
-| V1__init.sql | Project, ConversionHistory |
-| V2__add_sequences.sql | Sequence additions |
-| V3__import_history.sql | Import history fields |
+| Field | Notes |
+|-------|-------|
+| id | PK |
+| project_id | FK → Project |
+| source | `CONVERT` \| `IMPORT` (string today — consider enum #8 in TECH_SPEC) |
+| serviceId, serviceName | CONVERT only |
+| namespace | Target OpenShift namespace |
+| status | `COMPLETED` \| `PARTIAL` \| `FAILED` \| `IN_PROGRESS` |
+| compatibilityScore | CONVERT only |
+| totalCount, successCount, failureCount | Apply stats |
+| failureDetails | JSON text — `[{fileName, kind, name, error}]` |
+| exportedYaml | JSON text — `{filename → yaml}` post-apply |
+| yamlContent | Full generated YAML (CONVERT) |
+| packageName | |
+| createdAt | |
 
-## Domain Models (non-JPA)
+### AppSettingsEntity
 
-Used for 3scale API shapes and conversion pipeline:
+Generic key/value store: `settings_key` (PK), `value` (TEXT), `updatedAt`.
 
-- `ApiService`, `Backend`, `MappingRule`, `Metric`, `Policy`, `Authentication`
-- `Application`, `ApplicationPlan`, `Route`, `Project`
-- `CompatibilityItem`, `CompatibilityResult`
+## Relationships
 
-## 3scale → K8s Mapping
+```
+Project 1---* ConversionHistory
+```
 
-See `docs/conversion-architecture.md` and GitHub epic #149 for policy-level mappings.
+## Domain models (non-JPA, `model/`)
 
-Reference architecture docs (legacy program): `rhcl-ai/docs/architecture/3scale-to-cl-mapping.md` — verify against current toolkit behavior.
+3scale graph: `ApiService`, `Backend`, `MappingRule`, `Metric`, `Policy`, `Authentication`, `Application`, `ApplicationPlan`, `Route`, `Project`, `CompatibilityItem`, `CompatibilityResult`.
+
+## Flyway
+
+Versions **V1–V9** — do not document only V1–V3; check `db/migration/` for current truth.
+
+## Suggested improvements (not implemented)
+
+- `@Enumerated(STRING)` for status/source
+- Native `jsonb` for JSON columns (see TECHNICAL_SPECIFICATIONS §7 #8)
+
+## Policy mapping
+
+`docs/conversion-architecture.md` + GitHub #149.

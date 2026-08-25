@@ -2,28 +2,43 @@
 
 ## Language
 
-English only for agent-facing and maintainer docs in this store and the product repo.
+English only for agent-facing and maintainer docs.
 
-## OpenSpec Artifacts
+## Source-of-truth hierarchy
 
-Each change under `openspec/changes/<name>/` should include (per `spec-driven` schema):
+| Layer | Location | Role |
+|-------|----------|------|
+| **Product audit** | `migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` | Ground truth from code audit — update after #40 / #169 |
+| **Product Cursor rules** | `migration-toolkit-rhcl/.cursor/rules/*.mdc` | File-scoped rules when editing product code |
+| **SDD store docs** | `rhcl-sdd/docs/` | Agent-oriented summaries + OpenSpec context |
+| **OpenSpec changes** | `openspec/changes/<name>/` | Per-change proposal, spec, design, tasks |
+
+SDD docs must stay **consistent** with TECHNICAL_SPECIFICATIONS.md. If they diverge, fix SDD docs or file a doc-sync task.
+
+## OpenSpec artifacts
+
+Per `spec-driven` schema:
 
 - `proposal.md` — why, scope, non-goals
-- `spec.md` or `specs/` — requirements and scenarios
-- `design.md` — technical approach
-- `tasks.md` — checkbox tasks sized for one session
-
-Follow [openspec-tasks-mandatory-steps.md](./openspec-tasks-mandatory-steps.md).
+- `spec.md` / `specs/` — requirements and scenarios
+- `design.md` — technical approach (**solution-architect**)
+- `tasks.md` — checkbox tasks ([mandatory steps](./openspec-tasks-mandatory-steps.md))
 
 ## Product README
 
-Major feature or API changes must update `migration-toolkit-rhcl/README.md` sections: API Reference, Features, Data Model as needed.
+Feature/API changes → update `migration-toolkit-rhcl/README.md` (API Reference, Features, Data Model).
+
+Major pattern changes → also update `TECHNICAL_SPECIFICATIONS.md`.
 
 ## Archive
 
-On `/opsx-archive`, optionally add a summary under `migration-toolkit-rhcl/docs/archive/` if maintainers want git-visible traceability (pattern from legacy ApiShift archives).
+Optional summary in `migration-toolkit-rhcl/docs/archive/` on `/opsx-archive` (legacy ApiShift pattern).
 
-## Cross-Links
+## Cross-links
 
-- GitHub issue ↔ OpenSpec change name (e.g. `policy-cors-conversion` ↔ #149 child issue)
-- PR description links change name and issue number
+- GitHub issue ↔ OpenSpec change name
+- PR description: issue + change name + `Closes #N`
+
+## Do not duplicate symlink entry points
+
+`AGENTS.md`, `CLAUDE.md`, `codex.md`, `GEMINI.md` are **separate files** — not symlinks to `base-standards.md`. Rules live in `docs/base-standards.md`.

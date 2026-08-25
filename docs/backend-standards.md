@@ -1,84 +1,94 @@
 ---
-description: Backend standards for Migration Toolkit — Quarkus 3.27, Java 21, REST, Fabric8, Flyway.
+description: Backend standards — Quarkus 3.27, Java 21, ArchUnit layering, Fabric8, Flyway V1–V9.
 globs: ["../migration-toolkit-rhcl/backend/**"]
 alwaysApply: true
 ---
 
 # Backend Standards — Migration Toolkit
 
+> Ground truth audit: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` §1–5.  
+> Layering/tests detail: `../migration-toolkit-rhcl/.cursor/rules/testing-standards.mdc`  
+> Data model: `../migration-toolkit-rhcl/.cursor/rules/data-model.mdc`
+
 ## Stack
 
 | Component | Version / choice |
 |-----------|------------------|
-| Runtime | Java 21 (OpenJDK) |
-| Framework | Quarkus 3.27.5.1 |
-| REST | RESTEasy Reactive |
+| Runtime | Java 21 |
+| Framework | Quarkus **3.27.5.1** |
+| REST | RESTEasy Reactive + Jackson |
 | Persistence | Hibernate ORM Panache + PostgreSQL |
-| Migrations | Flyway (`V1`–`V3`) |
-| K8s client | Fabric8 6.7.x |
-| OpenAPI | SmallRye OpenAPI + Swagger UI (`/q/swagger-ui`) |
+| Migrations | Flyway **V1–V9** |
+| K8s | Fabric8 6.7.x (`quarkus-kubernetes-client`) |
+| Validation | Hibernate Validator (`@Valid` on DTOs) |
+| YAML | SnakeYAML 2.6 |
+| OpenAPI | SmallRye OpenAPI + `/q/swagger-ui` |
+| Testing | JUnit 5, REST-assured, Mockito, H2 test profile, **ArchUnit**, Playwright E2E, Awaitility |
+| Static analysis | Checkstyle, PMD, JaCoCo (unit + Quarkus merged) |
 | Build | Maven 3.9+ |
 
-## Package Layout
+## Package layout (44 source files)
 
 ```
-backend/src/main/java/com/redhat/migrationtoolkit/rhcl/
-  controller/   REST resources
-  service/      Business logic (ConversionService, ThreeScaleExportService, …)
-  client/       3scale HTTP client
-  dto/          Request/response DTOs
-  model/        Domain models (ApiService, Policy, MappingRule, …)
-  entity/       JPA entities (ProjectEntity, ConversionHistoryEntity, …)
+com.redhat.migrationtoolkit.rhcl/
+  controller/   14 JAX-RS endpoints
+  service/      6 @ApplicationScoped services
+  entity/       3 Panache entities
+  dto/          7 request/response shapes (no Dto suffix)
+  model/        11 internal 3scale graph models
+  client/       1 ThreeScale REST client interface
   util/         Messages, ConversionConstants
 ```
 
-## Layering Rules
+## ArchUnit layering (do not violate)
 
-- **Controllers**: thin — validate input, resolve locale via `Messages`, delegate to services.
-- **Services**: orchestration, 3scale/K8s I/O, conversion logic.
-- **Entities / models**: persistence and domain shapes; no HTTP concerns.
-- **DTOs**: API boundary only.
+Enforced in `backend/src/test/architect/.../ArchitectureTest.java`:
 
-## API Conventions
+- `controller → service → client`; controllers **must not** depend on `client` directly
+- `*Controller` in `controller..` with `@Path`
+- `*Service` in `service..`/`model..`, `@ApplicationScoped`, no `@Path`
+- `*Entity` in `entity..`, `@Entity`, no dependency on `controller..`
+- `client..` types are interfaces
+- No `System.out` / `java.util.logging`
 
-- Base path: `/api/*`
-- JSON request/response
-- User-facing strings via `Messages` + `Accept-Language` (EN default, JA supported)
-- OpenAPI maintained by Quarkus annotations; keep in sync with `docs/api-spec.yml` in this store
+## DI and API patterns (current code)
 
-## 3scale Integration
+- **Field injection** with `@Inject` everywhere — match existing style, don't introduce constructor injection ad hoc
+- `@Transactional` on **controller** methods that persist entities (not in services today)
+- Responses: typed DTOs or records nested in controllers — no shared envelope yet
+- Errors: per-endpoint `try/catch` returning `Map.of("error", ...)` — **three inconsistent shapes** today (see TECHNICAL_SPECIFICATIONS §5.8)
+- File upload: `@RestForm("file") FileUpload` in `ImportController`
+- Tokens: `Authorization: Bearer <token>` only — never query string
 
-`ThreeScaleClient` / `ThreeScaleExportService` call Admin API:
+## Key services
 
-- `GET /admin/api/services.json`
-- Backends, proxy configs, policies, mapping rules, metrics, auth
-
-Respect pagination and avoid N+1 patterns (see issue #169).
-
-## Cluster Operations
-
-- Apply via Server-Side Apply (`ApplyController`)
-- Auto RBAC provisioning in target namespace
-- Gateway info from live cluster (`GatewayInfoController`)
+| Service | Notes |
+|---------|-------|
+| `ConversionService` | ~1300 lines — god class; target #40 Strategy/Registry/Contributor |
+| `ThreeScaleExportService` | TTL caches + token fingerprint (SHA-256) on cache keys |
+| `ClusterVersionService` | Request coalescing via `CompletableFuture` map |
+| `CompatibilityService` | Scoring JWT/rewrite/Lua/SOAP |
+| `ValidationService` | YAML/CRD validation; flags `REPLACE_ME` placeholder |
+| `ApplyController` flow | SSA + scoped RBAC Role/RoleBinding |
 
 ## Testing
 
 ```bash
-cd ../migration-toolkit-rhcl/backend && mvn test
-cd ../migration-toolkit-rhcl/backend && mvn verify
+cd ../migration-toolkit-rhcl/backend && mvn test      # unit + ArchUnit
+cd ../migration-toolkit-rhcl/backend && mvn verify    # + IT, JaCoCo, Checkstyle, PMD
 ```
 
-- JUnit 5 + Quarkus test extensions
-- Mock at HTTP/K8s boundaries, not internal service logic under test
-- Conversion tests: assert YAML structure; be aware of CRLF on Windows
+- Test method naming: `methodUnderTest_condition_expectedResult`
+- Mock at HTTP/K8s boundaries; `@QuarkusTest` + REST-assured for controllers
+- `ConversionServiceTest`: YAML string assertions — **CRLF false failures on Windows** (`core.autocrlf=true`); trust Linux CI
 
 ## Security
 
-- Never commit tokens, kubeconfigs, or `.env` secrets
-- Redact secrets in logs and exported YAML where policies require it
+- Never commit tokens/kubeconfigs
+- `ConversionConstants.CREDENTIAL_PLACEHOLDER = "REPLACE_ME"` in generated secrets
+- `ClusterVersionService.sanitize()` redacts tokens from logs/errors
+- Backend has **no auth layer** — trusts caller-supplied 3scale/cluster credentials (admin tool assumption)
 
-## Error Handling
+## Logging
 
-- Use domain-appropriate HTTP status codes
-- Localized error messages through `Messages` bean
-- Log structured context (service id, namespace) without secrets
+`org.jboss.logging.Logger` named `LOG`; use `infof`/`warnf`/`debugf` — never string concat.

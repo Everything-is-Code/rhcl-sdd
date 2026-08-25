@@ -1,58 +1,78 @@
-# Agent guide — RHCL SDD store (`rhcl-sdd`)
+---
+description: Core development rules for Migration Toolkit RHCL — single source of truth for all AI agents in this store.
+alwaysApply: true
+---
 
-OpenSpec store for **[migration-toolkit-rhcl](https://github.com/Everything-is-Code/migration-toolkit-rhcl)**. Specs and docs live here; product code lives in the sibling folder `../migration-toolkit-rhcl/`.
+## 1. Core Principles
 
-## Store identity
+- **Small tasks, one at a time**: Baby steps; never skip ahead of the current OpenSpec task.
+- **Test-first for new behavior**: Failing tests before implementation (JUnit 5 + ArchUnit backend, Vitest frontend).
+- **Type safety**: Java explicit types; TypeScript `strict: true`.
+- **Clear naming**: 3scale / Kuadrant / Gateway API domain language.
+- **Incremental changes**: Focused PRs; no unrelated hygiene in feature work.
+- **Spec is source of truth**: Code must trace to OpenSpec artifacts in this store after `/opsx-propose`.
 
-- **GitHub repo**: `Everything-is-Code/rhcl-sdd`
-- **Local folder**: `migration-toolkit-sdd/` (sibling to product repo)
-- **OpenSpec store id**: `rhcl-sdd`
-- **CLI**: `openspec list --store rhcl-sdd`
+## 2. Language
 
-## Workspace (sibling layout)
+**English only** for code, specs, commits, PRs, issues, and all docs in this store.
 
-Open **`rhcl-sdd.code-workspace`** in this repo — it loads both folders side by side in Cursor:
+Product SPA i18n: EN + JA only — do not add locales without maintainer approval.
 
-| Folder in workspace | Path |
-|---------------------|------|
-| `rhcl-sdd` | this store |
-| `migration-toolkit-rhcl` | `../migration-toolkit-rhcl` |
+## 3. Repository layout (sibling workspace)
 
-`/opsx-apply` reads artifacts here and edits files under `migration-toolkit-rhcl/`.
+| Path | Role |
+|------|------|
+| `migration-toolkit-sdd/` (GitHub: `rhcl-sdd`) | OpenSpec store — specs, `docs/`, `ai-specs/` |
+| `../migration-toolkit-rhcl/` | Product code |
 
-## Commands (Cursor)
+Open **`rhcl-sdd.code-workspace`** in Cursor. `/opsx-apply` edits the product repo.
 
-| Command / skill | Purpose |
-|-----------------|---------|
-| `/opsx-explore` | Explore problem space |
-| `/opsx-propose` | Create change artifacts — **solution-architect** owns `design.md` |
-| `/opsx-apply` | Implement tasks in product repo |
-| `/opsx-archive` | Complete change |
-| `enrich-us` | Enrich GitHub issue before propose |
+**Canonical product audit doc**: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` — stack, patterns, gaps. SDD `docs/` summarize for agents; reconcile after #40 / #169 refactors.
 
-## Agent roles
+## 4. Linked standards (this store)
 
-| Agent | Use when |
-|-------|----------|
-| `solution-architect` | Architecture, #40 refactor, `design.md`, interfaces |
-| `backend-developer` | Quarkus / ConversionService implementation |
-| `frontend-developer` | React / PatternFly implementation |
-| `product-strategy-analyst` | Epic scope / prioritization (optional) |
+- [Backend Standards](./backend-standards.md)
+- [Frontend Standards](./frontend-standards.md)
+- [Conversion Architecture](./conversion-architecture.md)
+- [Documentation Standards](./documentation-standards.md)
+- [API Spec](./api-spec.yml)
+- [Data Model](./data-model.md)
+- [Development Guide](./development_guide.md)
+- [SDD Backlog](./sdd-backlog.md)
+- [OpenSpec Tasks Mandatory Steps](./openspec-tasks-mandatory-steps.md)
 
-Canonical definitions: `ai-specs/agents/*.md`
+**Product Cursor rules** (apply when editing product code): `migration-toolkit-rhcl/.cursor/rules/*.mdc`
 
-## Read first
+## 5. Agent roles
 
-1. `docs/base-standards.md`
-2. `docs/sdd-backlog.md`
-3. `openspec/config.yaml`
+| Agent | When |
+|-------|------|
+| `solution-architect.md` | `design.md`, #40, cross-cutting architecture |
+| `backend-developer.md` | Quarkus implementation |
+| `frontend-developer.md` | React/PatternFly implementation |
+| `product-strategy-analyst.md` | Epic scope (optional) |
 
-## Do not
+Skills: `ai-specs/skills/` — load matching `SKILL.md` automatically.
 
-- Add application code here (except `docs/`, `ai-specs/`, `openspec/`)
-- Use Engram for new work
-- Create `openspec/` in the product repo
+## 6. SDD workflow
 
-## Language
+1. `enrich-us` on GitHub issue
+2. `/opsx-propose <change-name>`
+3. `/opsx-apply` → `../migration-toolkit-rhcl/`
+4. `mvn test` + `npm test` in product repo
+5. `/opsx-archive` + PR
 
-English only.
+Store id: `rhcl-sdd` — `openspec list --store rhcl-sdd`
+
+## 7. Product conventions
+
+- CODEOWNERS review on substantive PRs (@pcastelo)
+- Stacked PRs: merge root first, merge `main` into feature branch
+- `NAMESPACE_PLACEHOLDER` in deploy manifests
+- `VITE_API_URL` bake-time — never `REACT_APP_*`
+- #169 before new bulk-fetch paths
+- #170: no new positional args on `generateReadme(...)`
+
+## 8. Post-apply discipline
+
+Scope changes after `/opsx-apply` but before `/opsx-archive` → update OpenSpec artifacts first, then code.
