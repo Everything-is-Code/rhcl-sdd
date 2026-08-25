@@ -27,7 +27,7 @@ Product SPA i18n: EN + JA only — do not add locales without maintainer approva
 
 Open **`rhcl-sdd.code-workspace`** in Cursor. `/opsx-apply` edits the product repo.
 
-**Canonical product audit doc**: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` — stack, patterns, gaps. SDD `docs/` summarize for agents; reconcile after #40 / #169 refactors.
+**Canonical product audit**: `docs/technical-specifications.md` in this store (+ product `.cursor/rules/*.mdc`).
 
 ## 4. Linked standards (this store)
 
@@ -39,6 +39,7 @@ Open **`rhcl-sdd.code-workspace`** in Cursor. `/opsx-apply` edits the product re
 - [Data Model](./data-model.md)
 - [Development Guide](./development_guide.md)
 - [SDD Backlog](./sdd-backlog.md)
+- [Skills Inventory](./skills-inventory.md)
 - [OpenSpec Tasks Mandatory Steps](./openspec-tasks-mandatory-steps.md)
 
 **Product Cursor rules** (apply when editing product code): `migration-toolkit-rhcl/.cursor/rules/*.mdc`
@@ -52,15 +53,18 @@ Open **`rhcl-sdd.code-workspace`** in Cursor. `/opsx-apply` edits the product re
 | `frontend-developer.md` | React/PatternFly implementation |
 | `product-strategy-analyst.md` | Epic scope (optional) |
 
-Skills: `ai-specs/skills/` — load matching `SKILL.md` automatically.
+Skills: `ai-specs/skills/` — see [skills-inventory.md](./skills-inventory.md).
 
 ## 6. SDD workflow
 
 1. `enrich-us` on GitHub issue
 2. `/opsx-propose <change-name>`
 3. `/opsx-apply` → `../migration-toolkit-rhcl/`
-4. `mvn test` + `npm test` in product repo
-5. `/opsx-archive` + PR
+4. `/verify` — tests + `openspec validate` + verify-report
+5. `/code-review` — RHCL PR-style review (Major/Moderate/Minor/Nit)
+6. `/adversarial-review` — red-team (fresh session preferred)
+7. `/opsx-archive`
+8. `/commit` — PR on product repo
 
 Store id: `rhcl-sdd` — `openspec list --store rhcl-sdd`
 

@@ -28,8 +28,8 @@ Open **`rhcl-sdd.code-workspace`** in Cursor (both repos in one window).
 | 1 | `enrich-us` on GitHub issue |
 | 2 | `/opsx-propose <change-name>` |
 | 3 | `/opsx-apply <change-name>` → edits `../migration-toolkit-rhcl/` |
-| 4 | `mvn test` + `npm test` in product repo |
-| 5 | `/opsx-archive` + PR on product repo |
+| 4 | `/verify` + `/code-review` |
+| 5 | `/opsx-archive` + `/commit` |
 
 CLI: `openspec list --store rhcl-sdd`
 

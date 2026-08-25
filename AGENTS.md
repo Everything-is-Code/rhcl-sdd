@@ -15,13 +15,15 @@ Open `rhcl-sdd.code-workspace` — loads this store + product repo side by side.
 
 ## Commands
 
-`/opsx-explore` · `/opsx-propose` · `/opsx-apply` · `/opsx-archive` · skill `enrich-us`
+`/opsx-explore` · `/opsx-propose` · `/opsx-apply` · `/verify` · `/code-review` · `/adversarial-review` · `/opsx-archive` · `/commit` · `enrich-us`
+
+Full skill map: `docs/skills-inventory.md`
 
 ## Read first
 
 1. `docs/base-standards.md` (not this file — rules live there)
 2. `docs/sdd-backlog.md`
-3. Product `TECHNICAL_SPECIFICATIONS.md` for ground-truth stack/patterns
+3. Product `docs/technical-specifications.md` for ground-truth stack/patterns
 
 ## Agents
 

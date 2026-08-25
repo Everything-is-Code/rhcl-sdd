@@ -12,7 +12,7 @@ context: |
 
   Technical context (read before any artifact or implementation):
   - docs/base-standards.md — core principles and workflow
-  - ../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md — ground-truth code audit
+  - docs/technical-specifications.md — ground-truth code audit
   - ../migration-toolkit-rhcl/.cursor/rules/*.mdc — file-scoped product rules
   - docs/backend-standards.md — Quarkus, Fabric8, Flyway, testing
   - docs/frontend-standards.md — React, Vite, VITE_API_URL, i18n

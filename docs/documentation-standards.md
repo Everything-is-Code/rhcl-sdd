@@ -8,7 +8,7 @@ English only for agent-facing and maintainer docs.
 
 | Layer | Location | Role |
 |-------|----------|------|
-| **Product audit** | `migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` | Ground truth from code audit — update after #40 / #169 |
+| **Product audit** | `docs/technical-specifications.md` (this store) | Ground truth from code audit |
 | **Product Cursor rules** | `migration-toolkit-rhcl/.cursor/rules/*.mdc` | File-scoped rules when editing product code |
 | **SDD store docs** | `rhcl-sdd/docs/` | Agent-oriented summaries + OpenSpec context |
 | **OpenSpec changes** | `openspec/changes/<name>/` | Per-change proposal, spec, design, tasks |

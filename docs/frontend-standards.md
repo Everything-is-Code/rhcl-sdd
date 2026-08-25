@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Frontend Standards — Migration Toolkit
 
-> Ground truth: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` §1, §3, §5.7–5.9  
+> Ground truth: [technical-specifications.md](./technical-specifications.md)  
 > Detail: `../migration-toolkit-rhcl/.cursor/rules/frontend-standards.mdc`
 
 ## Stack

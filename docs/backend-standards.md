@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Backend Standards — Migration Toolkit
 
-> Ground truth audit: `../migration-toolkit-rhcl/TECHNICAL_SPECIFICATIONS.md` §1–5.  
+> Ground truth audit: [technical-specifications.md](./technical-specifications.md)  
 > Layering/tests detail: `../migration-toolkit-rhcl/.cursor/rules/testing-standards.mdc`  
 > Data model: `../migration-toolkit-rhcl/.cursor/rules/data-model.mdc`
 
