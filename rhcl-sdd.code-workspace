@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "rhcl-sdd",
+			"path": "."
+		},
+		{
+			"name": "migration-toolkit-rhcl",
+			"path": "../migration-toolkit-rhcl"
+		}
+	],
+	"settings": {}
+}

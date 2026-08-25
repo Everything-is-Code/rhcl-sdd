@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: Migration Toolkit RHCL API
+  description: |
+    REST API for 3scale export, compatibility check, YAML conversion, validation,
+    apply, and history. Full interactive docs at /q/swagger-ui on the running backend.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local Quarkus dev
+paths:
+  /api/connection/test:
+    post:
+      summary: Test 3scale connection
+  /api/services:
+    get:
+      summary: List API services
+  /api/services/{id}:
+    get:
+      summary: Get service details
+  /api/services/{id}/compatibility:
+    get:
+      summary: Run compatibility check
+  /api/convert:
+    post:
+      summary: Generate YAML (run conversion)
+  /api/validate:
+    post:
+      summary: Validate generated YAML
+  /api/download/zip:
+    post:
+      summary: Download conversion ZIP
+  /api/apply:
+    post:
+      summary: Apply to cluster (SSA, auto RBAC, history)
+  /api/import/zip:
+    post:
+      summary: Upload and parse ZIP
+  /api/history:
+    get:
+      summary: List conversion history (lightweight)
+    delete:
+      summary: Bulk delete history entries
+  /api/history/{id}:
+    get:
+      summary: Get history entry
+  /api/history/{id}/download:
+    get:
+      summary: Download applied YAML as ZIP
+  /api/history/projects:
+    get:
+      summary: List projects
+  /api/gateway/info:
+    get:
+      summary: Gateway resource info from cluster
+  /api/cluster/domain:
+    get:
+      summary: Auto-detect cluster base domain
+  /api/setup/namespace:
+    post:
+      summary: Apply namespace setup resources
+  /api/setup/status:
+    get:
+      summary: Namespace setup status

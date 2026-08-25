@@ -1,0 +1,54 @@
+schema: spec-driven
+
+context: |
+  Product: Migration Toolkit for Red Hat Connectivity Link (3scale → Kuadrant / Gateway API).
+  Code repo: ../migration-toolkit-rhcl (Quarkus 3.27 / Java 21 backend, React / PatternFly frontend).
+  This folder is OpenSpec store id: rhcl-sdd (GitHub: Everything-is-Code/rhcl-sdd).
+
+  Apply mode: sibling workspace — edit product code only under ../migration-toolkit-rhcl/.
+
+  Domain: 3scale export, compatibility scoring, YAML conversion, cluster apply, history.
+  English only for code, specs, commits, PRs, and issues.
+
+  Technical context (read before any artifact or implementation):
+  - docs/base-standards.md — core principles and workflow
+  - docs/backend-standards.md — Quarkus, Fabric8, Flyway, testing
+  - docs/frontend-standards.md — React, Vite, VITE_API_URL, i18n
+  - docs/conversion-architecture.md — Strategy/Registry/Contributor (#40)
+  - docs/api-spec.yml — REST endpoints
+  - docs/data-model.md — PostgreSQL + domain models
+  - docs/documentation-standards.md
+  - docs/sdd-backlog.md — prioritized changes ↔ GitHub issues
+  - docs/development_guide.md — local setup and test commands
+
+  Agents (adopt when working):
+  - ai-specs/agents/solution-architect.md — design.md, #40 architecture, interfaces, phasing
+  - ai-specs/agents/backend-developer.md — Quarkus / ConversionService implementation
+  - ai-specs/agents/frontend-developer.md — SPA implementation
+  - ai-specs/skills/ — enrich-us, commit, code-auditing, using-git-worktrees, …
+
+  Issue tracker: GitHub Issues on Everything-is-Code/migration-toolkit-rhcl (not Jira).
+  Key epics: #149 policies, #40 conversion refactor, #169 performance, #170 generateReadme.
+
+rules:
+  _global:
+    - Read docs/base-standards.md before creating any artifact
+    - For design.md and architecture: docs/conversion-architecture.md + solution-architect agent
+    - Phased #40 work must not block parallel #149 policy changes
+    - Backend implementation: docs/backend-standards.md + backend-developer agent
+    - Frontend implementation: docs/frontend-standards.md + frontend-developer agent
+    - Conversion/policy work: check #149 / #40 / #170
+    - Use docs/api-spec.yml and docs/data-model.md for API/data consistency
+
+operations:
+  apply:
+    guidance:
+      - Edit product code only under ../migration-toolkit-rhcl/
+      - Run backend mvn test and frontend typecheck/test before marking tasks complete
+      - Do not add positional parameters to generateReadme(...) (#170)
+      - Check #169 before new bulk 3scale or cluster list code paths
+      - Windows CRLF may fail ConversionServiceTest locally; confirm CI before blocking on YAML string tests
+  archive:
+    guidance:
+      - Link archived change to GitHub issue in PR description
+      - Update docs/sdd-backlog.md status if the change closes a backlog row
