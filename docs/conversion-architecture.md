@@ -1,46 +1,76 @@
-# Conversion Architecture — Target Design
+# Conversion Architecture — Implemented Design (#40)
 
-`ConversionService.java` (~1300 lines) converts 3scale policies to Kuadrant / Gateway API / Istio YAML. The agreed target architecture (issue **#40**, not fully implemented) has two levels.
+`ConversionService` (~175 lines) orchestrates conversion: it builds a `ConversionContext` once per call and delegates YAML generation to a **registry of resource generators**. Policy-specific logic lives in generators and contributors under `service/generator/`, not in the orchestrator.
+
+OpenSpec change: `conversion-strategy-registry` (GitHub [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40)).
 
 ## Level 1 — Strategy + Registry (per output file)
 
-One `ResourceGenerator` per Kubernetes resource file:
+Each output file is produced by one `ResourceGenerator` bean, collected by `ResourceGeneratorRegistry` (CDI `Instance<ResourceGenerator>`). `ConversionService.convert()` no longer branches on file names.
 
-| Output file | Resource kinds |
-|-------------|----------------|
-| `gateway.yaml` | Gateway |
-| `httproute.yaml` | HTTPRoute |
-| `policy.yaml` | AuthPolicy, RateLimitPolicy, etc. |
-| `secret.yaml` | Secret |
-| `destinationrule.yaml` | DestinationRule |
-| `serviceentry.yaml` | ServiceEntry |
-| `configmap.yaml` | ConfigMap |
+| Output file | Generator | When emitted |
+|-------------|-----------|--------------|
+| `gateway.yaml` | `GatewayGenerator` | Always |
+| `httproute.yaml` | `HttpRouteGenerator` | Always |
+| `policy.yaml` | `AuthPolicyGenerator` | Always (AuthPolicy YAML) |
+| `secret.yaml` | `SecretGenerator` | Always |
+| `configmap.yaml` | `ConfigMapGenerator` | Always |
+| `apiproduct.yaml` | `ApiProductGenerator` | Always |
+| `README.md` | `ReadmeGenerator` | Always |
+| `apikey.yaml` | `ApiKeyGenerator` | `authentication.type == apiKey` |
+| `serviceentry.yaml` | `ServiceEntryGenerator` | External backend(s) |
+| `destinationrule.yaml` | `DestinationRuleGenerator` | External backend(s) |
+| `telemetry.yaml` | `TelemetryGenerator` | `logging` policy enabled |
+| `envoyfilter-logging.yaml` | `LoggingEnvoyFilterGenerator` | Logging policy with non-empty `json_object_config` |
+| `envoyfilter-url-rewriting.yaml` | `UrlRewritingEnvoyFilterGenerator` | `url_rewriting` with commands |
+| `envoyfilter-content-limits.yaml` | `ContentLimitsEnvoyFilterGenerator` | Request body limit bytes > 0 |
+| `envoyfilter-retry.yaml` | `RetryEnvoyFilterGenerator` | Retry policy when `!options.retriesSupported` |
+| `authorizationpolicy.yaml` | `AuthorizationPolicyGenerator` | `ip_check` + `ipCheckMode == authorizationPolicy` |
+| `ratelimitpolicy.yaml` | `RateLimitPolicyGenerator` | Edge limiting produces YAML |
+| `tlspolicy.yaml` | `TlsPolicyGenerator` | `options.includeTlsPolicy` |
+| `dnspolicy.yaml` | `DnsPolicyGenerator` | `ConversionContext.emitDnsPolicy(options)` |
 
-Lookup via a **registry** instead of hardcoded branches in `convert()`.
+**Discovery test:** `ResourceGeneratorRegistryDiscoveryTest` — new `@ApplicationScoped` generator picked up without editing the registry.
 
-## Level 2 — Collector / Contributor (within complex files)
+## Level 2 — Collector / Contributor (multi-policy files)
 
-Some files aggregate fragments from **multiple** unrelated 3scale policies:
+Complex files aggregate fragments from unrelated 3scale policies via CDI `Instance<*Contributor>` and a shared builder:
 
-- **HTTPRoute**: `header_modification`, `cors`, `url_rewriting`, mapping rules, retry, multi-backend
-- **AuthPolicy** (`policy.yaml`): several auth-related policies
-- **Secret**: credential-related policies
+| Output file | Builder | Contributors (examples) |
+|-------------|---------|-------------------------|
+| `httproute.yaml` | `HttpRouteBuilder` | Mapping rules, header mod, CORS, timeouts, retry, annotations |
+| `policy.yaml` | `AuthPolicyBuilder` | Anonymous, OAuth2 introspection, JWT, API key, IP OPA, JWT claim check, Keycloak roles, … |
+| `secret.yaml` | `SecretBuilder` | Anonymous/default credentials, token introspection, App ID/key, API key, default JWT credentials |
 
-Model each policy's contribution as a `Contributor` against a shared builder — not inline `if` chains in the generator.
+Contributor order uses `@Priority` resolved via `ContributorOrdering` (reads annotation on CDI proxy superclass).
 
-## Before Adding a New Policy Conversion
+**Discovery tests:** `HttpRouteContributorDiscoveryTest`, `AuthPolicyContributorDiscoveryTest`, `SecretContributorDiscoveryTest`.
 
-Check:
+## Shared spine
 
-1. **#149** — epic for 19 recognized-but-unconverted policies (each has issue + spec + target mapping).
-2. **#40** — implement in target shape where practical, even before full refactor lands.
-3. **#170** — `generateReadme(...)` uses a growing positional note list; do not add another positional parameter.
+| Component | Role |
+|-----------|------|
+| `PolicyFinder` | Central enabled-policy lookup (replaces per-policy `find*Policy` in orchestrator) |
+| `ConversionContext` | Per-convert snapshot: service, namespace, backends, options |
+| `BackendResolver` / `ResolvedBackend` | Multi-backend and external URL resolution |
+| `ConversionYamlSupport` | YAML normalization, label stripping |
+| `ReadmeSupport` + `ReadmeNotes` | README assembly (#170 — collector, not positional note args) |
+| `service/conversion/*Support` | Policy-specific helpers shared by contributors |
 
-## Adapter Integration
+## Before adding a new policy conversion
 
-YAML generation delegates to **from-3scale-to-connectivity-link** (external adapter). Phase 2 SDD will cover that repo; this store documents toolkit integration points only.
+1. **#149** — epic for recognized-but-unconverted policies (each with issue + spec).
+2. **#40** — add a new `*Contributor` (and generator only if a new output file is needed); do **not** extend `ConversionService`.
+3. **#170** — extend `ReadmeSupport` / `ReadmeNotes`; do not add positional parameters to orchestrator APIs.
+
+## Adapter integration
+
+YAML generation is native in this repo (Kuadrant / Gateway API / Istio). The external **from-3scale-to-connectivity-link** adapter is documented separately for Phase 2 SDD.
 
 ## Testing
 
 - `ConversionServiceTest` — YAML string assertions are whitespace-sensitive.
-- **Windows CRLF**: local `mvn test` may fail on YAML assertions with `core.autocrlf=true` while CI (Linux) is green. Trust CI before treating as regression.
+- `ConversionServiceConcurrencyTest` — parallel `convert()` safety.
+- `ArchitectureTest` — layering; contributors must not depend on `ConversionService`.
+- `*DiscoveryTest` — CDI auto-discovery for registry and each contributor family.
+- **Windows CRLF:** local `mvn test` may fail on YAML whitespace with `core.autocrlf=true` while Linux CI is green. Trust CI before treating as regression.

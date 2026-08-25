@@ -1,6 +1,7 @@
 ﻿# Technical Specifications
 
-**Canonical location:** hcl-sdd/docs/technical-specifications.md (SDD store). Product code: ../migration-toolkit-rhcl/.
+**Canonical location:** 
+hcl-sdd/docs/technical-specifications.md (SDD store). Product code: ../migration-toolkit-rhcl/.
  â€” Migration Toolkit for Red Hat Connectivity Link
 
 Reference document for engineers and coding agents working on this repository. It describes the stack, environment setup, architecture, data model, and conventions **as they actually exist in the code today**, plus a dedicated section of recommended improvements where current practice has gaps.
@@ -161,12 +162,12 @@ Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/ru
 - **Conventional Commits**: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:` â€” see [`CONTRIBUTING.md`](../migration-toolkit-rhcl/CONTRIBUTING.md).
 - Keep PRs focused; prefer review slices under ~400 authored lines. Link issues (`Closes #â€¦`).
 - Review required from [`.github/CODEOWNERS`](.github/CODEOWNERS) (`@pcastelo`, `@fmenesesg`). CI must be green before merge.
-- **Stacked/dependent PRs**: merge the root PR into `main` first (keep its branch), retarget the dependent PR's base to `main`, then resolve the resulting conflict by merging `main` in â€” don't rebase a PR that's already open for review. Conflicts concentrate in `ConversionService.java` and `generateReadme(...)`'s argument list (tracked in [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170)).
+- **Stacked/dependent PRs**: merge the root PR into `main` first (keep its branch), retarget the dependent PR's base to `main`, then resolve the resulting conflict by merging `main` in â€” don't rebase a PR that's already open for review. Historical conflict hotspots were `ConversionService.java`; after #40 the orchestrator is thin (~175 lines) â€” new policy work should touch generators/contributors instead.
 - Every PR gets an AI code-review comment (standard disclaimer, English, findings ranked Major/Moderate/Minor/Nit, never auto-approve unless asked).
 
 ### 5.5 Clean Code / SOLID
 
-- Controllers/services are generally single-purpose and thin, **except `ConversionService`** (~1300 lines), which currently violates SRP: it inlines YAML generation for every 3scale policy across every output file. This is a known, tracked gap â€” see [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40).
+- Controllers/services are generally single-purpose and thin. `ConversionService` is now a thin orchestrator (~175 lines) that builds `ConversionContext` and invokes `ResourceGeneratorRegistry`; YAML generation lives in `service/generator/` and `service/generator/contributor/` ([#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40), branch `feature/conversion-strategy-registry`, pending merge).
 - The rest of the backend follows the layering ArchUnit enforces (dependency inversion between layers is structurally guaranteed, not just convention).
 - Frontend pages are not further decomposed (no extraction of subcomponents into their own files) â€” acceptable at current size, but watch pages growing past ~500 lines (`ImportPage.tsx`, `ConnectionPage.tsx` are already large).
 
@@ -178,8 +179,9 @@ Full spec (ArchUnit rules, naming, frameworks, Vitest conventions): [`.cursor/ru
 | Cache-aside (manual) | `ThreeScaleExportService`'s `ConcurrentHashMap` + TTL caches (`exportCache`, `backendCatalogCache`, `applicationsCache`); keys include a SHA-256 token fingerprint to prevent cross-tenant cache leaks |
 | Request coalescing | `ClusterVersionService`'s `ConcurrentHashMap<String, CompletableFuture<...>>` collapses concurrent detects into one in-flight probe |
 | Error boundary | `App.tsx`'s `RouteErrorBoundary` (React class component) |
-| **Planned**: Strategy + Registry | One `ResourceGenerator` per output K8s file, looked up via a registry instead of hardcoded in `ConversionService.convert()` â€” see [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
-| **Planned**: Collector/Contributor | Each policy contributes a fragment to a shared builder for multi-policy files (`httproute.yaml`, `policy.yaml`, `secret.yaml`) instead of inline `if`s â€” see [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) and the README-notes variant in [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
+| Strategy + Registry | `ResourceGenerator` per output file + `ResourceGeneratorRegistry` (CDI); orchestrator delegates via `convert()` â€” [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
+| Collector/Contributor | `HttpRouteContributor`, `AuthPolicyContributor`, `SecretContributor` against shared builders for multi-policy YAML files â€” [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
+| Readme notes collector | `ReadmeSupport.build(..., ReadmeNotes)` replaces growing `buildReadme` positional args â€” overlaps [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
 
 ### 5.7 Form validation patterns
 
@@ -229,17 +231,17 @@ Gaps identified while writing this document, prioritized. Items already tracked 
 
 | # | Area | Suggestion | Tracking |
 |---|---|---|---|
-| 1 | Backend architecture | Split `ConversionService` with Strategy+Registry (per-file generators) and Collector/Contributor (per-policy fragments) | [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
+| 1 | Backend architecture | ~~Split `ConversionService`~~ **Done on branch** `feature/conversion-strategy-registry` — merge PR to close [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) | [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
 | 2 | Backend error handling | Introduce a `@ServerExceptionMapper`/custom exception hierarchy and a **single** error-response envelope (`{error, code, details}`) instead of 3 inconsistent ad-hoc shapes across controllers | New â€” not yet tracked |
 | 3 | Backend performance | Parallelize bulk convert, fix N+1 3scale calls, expose backend pagination in `HistoryPage` | [#169](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/169) |
 | 4 | Policy coverage | Implement the 19 recognized-but-unconverted 3scale policies | [#149](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/149) (+ 19 child issues) |
-| 5 | `generateReadme` signature | Replace the growing positional-argument list with a `ReadmeNotes` collector | [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
+| 5 | `generateReadme` signature | ~~Positional note args~~ **Addressed** via `ReadmeSupport` + `ReadmeNotes` collector on #40 branch — confirm closure of [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) on merge | [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
 | 6 | Frontend testing | Add `@testing-library/react` + `jsdom`; currently 0% of React components are tested (only pure-logic/util tests exist) | New â€” not yet tracked |
 | 7 | Frontend error handling | Extract the duplicated `apiErrorMessage(e, fallback)` helper into `frontend/src/utils/apiError.ts` | New â€” not yet tracked |
 | 8 | Data model | Use `@Enumerated(EnumType.STRING)` for `status`/`source` instead of free-form `String`; consider native `jsonb` for `failureDetails`/`exportedYaml` | New â€” not yet tracked |
 | 9 | Backend security | Consider whether the tool ever runs outside a trusted network; if so, add an auth layer in front of the backend's own API (today it has none â€” it only proxies caller-supplied 3scale/cluster credentials) | New â€” not yet tracked |
 | 10 | Form validation | Once a 3rd/4th frontend form repeats the same manual-`if` pattern, extract a small shared validation helper rather than duplicating it again | New â€” not yet tracked |
-| 11 | Documentation | This document and its 3 companion `.cursor/rules/*.mdc` files should be revisited whenever `ConversionService` is refactored (#40) or the error-handling envelope changes (#2 above), since several sections describe the current (pre-refactor) shape on purpose | New â€” not yet tracked |
+| 11 | Documentation | ~~Revisit after #40~~ **Updated** `conversion-architecture.md`, this file, `AGENTS.md` on verify (2026-08-25); revisit on error-handling envelope change (#2) | Partially addressed |
 
 ---
 

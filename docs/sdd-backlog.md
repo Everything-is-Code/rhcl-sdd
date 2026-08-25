@@ -4,11 +4,11 @@ Prioritized OpenSpec changes mapped to GitHub issues. Use `/opsx-propose` with t
 
 ## P0 — Architecture & debt
 
-| Change name | GitHub | Scope |
-|-------------|--------|-------|
-| `conversion-strategy-registry` | #40 | Strategy + Registry for `ResourceGenerator`; Contributor pattern for HTTPRoute/Policy/Secret |
-| `conversion-readme-args` | #170 | Replace `generateReadme(...)` positional note list with structured builder |
-| `export-performance-baseline` | #169 | Pagination, bulk convert parallelism, History UI pagination |
+| Change name | GitHub | Scope | Status |
+|-------------|--------|-------|--------|
+| `conversion-strategy-registry` | #40 | Strategy + Registry for `ResourceGenerator`; Contributor pattern for HTTPRoute/Policy/Secret | **Implemented** — branch `feature/conversion-strategy-registry`, verify PASS; single PR merge pending |
+| `conversion-readme-args` | #170 | Replace `generateReadme(...)` positional note list with structured builder | **Largely addressed on #40 branch** (`ReadmeSupport` + `ReadmeNotes`); close or narrow on #40 merge |
+| `export-performance-baseline` | #169 | Pagination, bulk convert parallelism, History UI pagination | Open |
 
 ## P1 — Policy conversion epic (#149)
 
