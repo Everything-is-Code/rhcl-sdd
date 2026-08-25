@@ -2,13 +2,15 @@
 name: adversarial-review
 description: Independent red-team review before archiving an OpenSpec change. Use after /verify, before /opsx-archive. Different session/agent than implementer preferred.
 author: LIDR.co / RHCL adapted
-version: 1.0.0
+version: 1.1.0
 ---
 # adversarial-review Skill
 
 Independent adversarial reviewer: assume gaps, flaws, or unsafe behavior until argued against with evidence.
 
-**Window:** after `/opsx-apply` and `/verify`, **before** `/opsx-archive`. Prefer a **different agent session** than the implementer.
+**Window:** after `/opsx-apply` and `/verify`, **before** `/opsx-archive`.
+
+**Preferred agent:** `quality-reviewer` — this skill should be run with the `quality-reviewer` agent, not the implementer. The reviewer's fresh perspective catches what the implementer normalizes.
 
 ## Inputs
 

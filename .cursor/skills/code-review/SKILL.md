@@ -2,11 +2,13 @@
 name: code-review
 description: AI code review for RHCL PRs — Major/Moderate/Minor/Nit findings, English, no auto-approve. Use after /verify, before /commit.
 author: RHCL / adapted from LIDR SpecBoot + code-auditing
-version: 1.0.0
+version: 1.1.0
 ---
 # code-review Skill
 
 Independent review of changes for the active OpenSpec change or current branch diff.
+
+**Preferred agent:** `quality-reviewer` — run this skill with the `quality-reviewer` agent for best results (independent perspective, no implementer bias).
 
 ## Input
 
