@@ -195,13 +195,14 @@ Frontend: no schema library. Manual `if` + boolean state, surfaced via PatternFl
 ### 5.8 Error handling
 
 - **Backend**: centralized exception handling via `@ServerExceptionMapper` in `ApiExceptionMapperResource`. All HTTP error responses (4xx, 5xx) use a **unified envelope**: `{ "error": { "code": "SCREAMING_SNAKE", "message": "human-readable", "details": {} } }`.
-  - **Exception hierarchy** in `exception/` package: `ApiException` (abstract base) → `ValidationException` (400), `ThreeScaleClientException` (502), `ClusterApplyException` (500), `ImportParseException` (400).
+  - **Exception hierarchy** in `exception/` package: `ApiException` (abstract base) → `ValidationException` (400), `ThreeScaleClientException` (502), `ClusterApplyException` (500), `ImportParseException` (400), `NotFoundException` (404).
   - **`ConstraintViolationException`** mapper overrides Quarkus default → `VALIDATION_FAILED` with per-field `details`.
   - **Fallback mapper** for `Exception.class` → `INTERNAL_ERROR` (500) with generic message. Passes through `WebApplicationException` (404/405).
   - **Sanitization**: `ErrorSanitizer.sanitize()` redacts tokens/passwords/bearer from `message`.
-  - **Phase-1 migrated**: `ConversionController`, `ApplyController`, `ImportController`. Non-migrated controllers still use legacy catch blocks; fallback mapper covers uncaught exceptions.
+  - **All controllers migrated**: `ConversionController`, `ApplyController`, `ImportController` (#171), `ConnectionController`, `ExportController`, `HistoryController`, `ClusterController`, `GatewayInfoController`, `PackageController`, `SettingsController` (#196). Zero legacy `Response.status(...).entity("string")` patterns remain on error paths.
+  - **Error code registry** (14 codes): `VALIDATION_FAILED`, `THREESCALE_CLIENT_ERROR`, `APPLY_FAILED`, `IMPORT_PARSE_ERROR`, `IMPORT_NO_YAML`, `INTERNAL_ERROR`, `CONNECTION_TEST_FAILED`, `HISTORY_NOT_FOUND`, `HISTORY_DOWNLOAD_FAILED`, `CLUSTER_ROUTE_NOT_FOUND`, `CLUSTER_ROUTE_HOST_PENDING`, `CLUSTER_DOMAIN_EXTRACT_FAILED`, `GATEWAY_NOT_FOUND`, `SETTINGS_NOT_FOUND`.
   - **Partial-success** (`ApplyResult[]`, per-service conversion) stays HTTP 200 with typed results — not the envelope.
-- **Frontend**: `apiErrorMessage()` in `utils/apiError.ts` handles both new envelope (object `error` with `code` + `message`) and legacy shapes. `apiErrorI18nMessage(e, t, fallback)` maps known codes to i18n keys (`ERROR_CODE_I18N`) for localized messages (EN/JA), falling back to backend `message` for unrecognized codes. All pages use `catch (e: unknown)` + `Alert variant="danger"` â€” this extraction logic is duplicated per page rather than shared.
+- **Frontend**: `apiErrorI18nMessage(e, t, fallback)` in `utils/apiError.ts` is the primary error extractor across all pages. Maps known codes via `ERROR_CODE_I18N` (14 entries) to i18n keys for localized messages (EN/JA), falling back to backend `message` for unrecognized codes. Legacy `apiErrorMessage()` is retained only as an internal fallback. `useGatewayUrl` stops polling on 400/404 instead of silently retrying. All pages use `catch (e: unknown)` + `Alert variant="danger"` â€” this extraction logic is duplicated per page rather than shared.
 
 ### 5.9 Logging
 
@@ -241,7 +242,7 @@ Gaps identified while writing this document, prioritized. Items already tracked 
 | # | Area | Suggestion | Tracking |
 |---|---|---|---|
 | 1 | Backend architecture | ~~Split `ConversionService`~~ **Done on branch** `feature/conversion-strategy-registry` — merge PR to close [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) | [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
-| 2 | Backend error handling | ~~Introduce `@ServerExceptionMapper`/exception hierarchy~~ **Done** — unified error envelope, `ApiException` hierarchy, phase-1 controllers migrated, frontend i18n code mapping. OpenSpec: `unified-error-envelope` | [#171](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/171) â€” not yet tracked |
+| 2 | Backend error handling | **Complete** — unified error envelope, `ApiException` hierarchy, all controllers migrated, `NotFoundException`, 14 error codes, full frontend i18n adoption. OpenSpec: `unified-error-envelope`, `unified-error-envelope-complete` | [#171](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/171), [#196](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/196) â€” not yet tracked |
 | 3 | Backend performance | Parallelize bulk convert, fix N+1 3scale calls, expose backend pagination in `HistoryPage` | [#169](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/169) |
 | 4 | Policy coverage | Implement the 19 recognized-but-unconverted 3scale policies | [#149](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/149) (+ 19 child issues) |
 | 5 | `generateReadme` signature | ~~Positional note args~~ **Addressed** via `ReadmeSupport` + `ReadmeNotes` collector on #40 branch — confirm closure of [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) on merge | [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
