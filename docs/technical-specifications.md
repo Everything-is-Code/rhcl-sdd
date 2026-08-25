@@ -194,8 +194,14 @@ Frontend: no schema library. Manual `if` + boolean state, surfaced via PatternFl
 
 ### 5.8 Error handling
 
-- **Backend**: no custom exception classes, no `ExceptionMapper`/`@ServerExceptionMapper` anywhere in the codebase. The pattern is `try { ... } catch (Exception e) { LOG.warnf(e, ...); return Response.status(...).entity(Map.of("error", ...)).build(); }` repeated per endpoint, with an **inconsistent error body shape** across controllers (`{"error": "..."}` vs `{"success": false, "message": "..."}` vs typed result records).
-- **Frontend**: each page extracts `e.response?.data?.error || e.response?.data?.message || e.message || fallback` and renders it in an `Alert variant="danger"` â€” this extraction logic is duplicated per page rather than shared.
+- **Backend**: centralized exception handling via `@ServerExceptionMapper` in `ApiExceptionMapperResource`. All HTTP error responses (4xx, 5xx) use a **unified envelope**: `{ "error": { "code": "SCREAMING_SNAKE", "message": "human-readable", "details": {} } }`.
+  - **Exception hierarchy** in `exception/` package: `ApiException` (abstract base) → `ValidationException` (400), `ThreeScaleClientException` (502), `ClusterApplyException` (500), `ImportParseException` (400).
+  - **`ConstraintViolationException`** mapper overrides Quarkus default → `VALIDATION_FAILED` with per-field `details`.
+  - **Fallback mapper** for `Exception.class` → `INTERNAL_ERROR` (500) with generic message. Passes through `WebApplicationException` (404/405).
+  - **Sanitization**: `ErrorSanitizer.sanitize()` redacts tokens/passwords/bearer from `message`.
+  - **Phase-1 migrated**: `ConversionController`, `ApplyController`, `ImportController`. Non-migrated controllers still use legacy catch blocks; fallback mapper covers uncaught exceptions.
+  - **Partial-success** (`ApplyResult[]`, per-service conversion) stays HTTP 200 with typed results — not the envelope.
+- **Frontend**: `apiErrorMessage()` in `utils/apiError.ts` handles both new envelope (object `error` with `code` + `message`) and legacy shapes. `apiErrorI18nMessage(e, t, fallback)` maps known codes to i18n keys (`ERROR_CODE_I18N`) for localized messages (EN/JA), falling back to backend `message` for unrecognized codes. All pages use `catch (e: unknown)` + `Alert variant="danger"` â€” this extraction logic is duplicated per page rather than shared.
 
 ### 5.9 Logging
 
@@ -235,7 +241,7 @@ Gaps identified while writing this document, prioritized. Items already tracked 
 | # | Area | Suggestion | Tracking |
 |---|---|---|---|
 | 1 | Backend architecture | ~~Split `ConversionService`~~ **Done on branch** `feature/conversion-strategy-registry` — merge PR to close [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) | [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40) |
-| 2 | Backend error handling | Introduce a `@ServerExceptionMapper`/custom exception hierarchy and a **single** error-response envelope (`{error, code, details}`) instead of 3 inconsistent ad-hoc shapes across controllers | New â€” not yet tracked |
+| 2 | Backend error handling | ~~Introduce `@ServerExceptionMapper`/exception hierarchy~~ **Done** — unified error envelope, `ApiException` hierarchy, phase-1 controllers migrated, frontend i18n code mapping. OpenSpec: `unified-error-envelope` | [#171](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/171) â€” not yet tracked |
 | 3 | Backend performance | Parallelize bulk convert, fix N+1 3scale calls, expose backend pagination in `HistoryPage` | [#169](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/169) |
 | 4 | Policy coverage | Implement the 19 recognized-but-unconverted 3scale policies | [#149](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/149) (+ 19 child issues) |
 | 5 | `generateReadme` signature | ~~Positional note args~~ **Addressed** via `ReadmeSupport` + `ReadmeNotes` collector on #40 branch — confirm closure of [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) on merge | [#170](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/170) |
