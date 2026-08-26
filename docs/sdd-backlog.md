@@ -30,9 +30,10 @@ Epic [#210](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/
 
 | Change name | GitHub | Scope | Status |
 |-------------|--------|-------|--------|
-| `test-coverage-service-data-layers` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | Slices 1–2: model/entity + `ThreeScaleExportService` WireMock | **Archived** — PRs [#224](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/224), [#225](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/225); slices 3–4 remain on #222 |
+| `test-coverage-service-data-layers` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | Slices 1–2: model/entity + `ThreeScaleExportService` WireMock | **Archived** — PRs [#224](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/224), [#225](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/225) |
+| `test-coverage-cluster-compat` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | Slices 3–4: cluster/compat + `ConversionService` orchestration | **Archived** — branch `feature/222-test-coverage-cluster-compat`; PR pending |
 
-Suggested PR order for remaining #222 work: cluster/compat → `ConversionService` integration.
+Open PRs for #222: #224, #225, cluster-compat (pending).
 
 ## P1 — Policy conversion epic (#149)
 
