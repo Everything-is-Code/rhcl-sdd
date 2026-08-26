@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-08-25
+skip_specs: true
+status: superseded
+superseded_by: test-coverage-service-data-layers
+superseded_issue: "#222"

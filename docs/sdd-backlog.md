@@ -6,23 +6,33 @@ Prioritized OpenSpec changes mapped to GitHub issues. Use `/opsx-propose` with t
 
 | Change name | GitHub | Scope | Status |
 |-------------|--------|-------|--------|
-| `conversion-strategy-registry` | #40 | Strategy + Registry for `ResourceGenerator`; Contributor pattern for HTTPRoute/Policy/Secret | **Archived** — OpenSpec `2026-08-25-conversion-strategy-registry`; PR #190 merge pending |
-| `frontend-component-split` | #41 | Split large pages into `components/`, `AppStateContext`, shared `apiError` | **Archived** — OpenSpec `2026-08-25-frontend-component-split`; PR [#191](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/191) merge pending |
-| `unified-error-envelope` | #171 | Unified error envelope, `ApiException` hierarchy, frontend i18n code mapping | **Archived** — OpenSpec `2026-08-25-unified-error-envelope`; PR [#195](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/195) merge pending |
-| `unified-error-envelope-complete` | #196 | Complete migration: all controllers → envelope, `NotFoundException`, 14 codes, full frontend i18n | **Archived** — OpenSpec `2026-08-25-unified-error-envelope-complete`; PR [#197](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/197) merge pending |
+| `conversion-strategy-registry` | #40 | Strategy + Registry for `ResourceGenerator`; Contributor pattern for HTTPRoute/Policy/Secret | **Archived** — OpenSpec `2026-08-25-conversion-strategy-registry`; PR #190 merged |
+| `frontend-component-split` | #41 | Split large pages into `components/`, `AppStateContext`, shared `apiError` | **Archived** — OpenSpec `2026-08-25-frontend-component-split`; PR [#191](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/191) merged |
+| `unified-error-envelope` | #171 | Unified error envelope, `ApiException` hierarchy, frontend i18n code mapping | **Archived** — OpenSpec `2026-08-25-unified-error-envelope`; PR [#195](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/195) merged |
+| `unified-error-envelope-complete` | #196 | Complete migration: all controllers → envelope, `NotFoundException`, 14 codes, full frontend i18n | **Archived** — OpenSpec `2026-08-25-unified-error-envelope-complete`; PR [#197](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/197) merged |
 | `conversion-readme-args` | #170 | Replace `generateReadme(...)` positional note list with structured builder | **Largely addressed on #40 branch** (`ReadmeSupport` + `ReadmeNotes`); close or narrow on #40 merge |
 | `export-performance-baseline` | #169 | Pagination, bulk convert parallelism, History UI pagination | Open |
-| `test-coverage-controller` | #210 | Tier A: `controller` package JaCoCo (lines ≥90%) | **Archived** — OpenSpec `2026-08-26-test-coverage-controller`; PR [#213](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/213) |
 
-## P1 — Test coverage (#210 tiers)
+## P1 — Test coverage (#210) — **closed**
+
+Epic [#210](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/210) **closed** Aug 2026. Codecov `backend` ~37% → ~50–60%; JaCoCo lines ~60% on `main`.
 
 | Change name | GitHub | Scope | Status |
 |-------------|--------|-------|--------|
-| `test-coverage-exception-client` | #210 | Tier: exception + client packages | Open |
-| `test-coverage-conversion-support` | #210 | Tier: `service.conversion` | Open |
-| `test-coverage-generators` | #210 | Tier: `service.generator` | Open |
-| `test-coverage-contributors` | #210 | Tier: `service.generator.contributor` | Open |
-| `test-coverage-dto-model-entity` | #210 | Tier: dto/model/entity (optional) | Open |
+| `test-coverage-controller` | #210 | Tier A: `controller` ≥90% lines | **Archived** — PR [#213](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/213) merged |
+| `test-coverage-exception-client` | #210 | Tier: `exception` + `client` | **Archived** — PR [#214](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/214) merged |
+| `test-coverage-conversion-support` | #210 | Tier: `service.conversion` | **Archived** — PR [#216](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/216) merged |
+| `test-coverage-generators` | #210 | Tier: `service.generator` | **Archived** — PR [#217](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/217) merged |
+| `test-coverage-contributors` | #210 | Tier: `service.generator.contributor` | **Archived** — PR [#218](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/218) merged |
+| `test-coverage-dto-model-entity` | #210 | Optional PR-6 dto/model/entity | **Archived (superseded)** — baseline on `main`: dto 100%, entity ~65%, model ~50%; merged into #222 |
+
+## P1 — Test coverage follow-up (#222)
+
+| Change name | GitHub | Scope | Status |
+|-------------|--------|-------|--------|
+| `test-coverage-service-data-layers` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | `service/` root (export, cluster, compat, conversion) + residual dto/model/entity | **Open** — `/opsx-apply` slice 1 (`feature/222-test-coverage-data-layers`) |
+
+Suggested PR order: data layers (or skip) → `ThreeScaleExportService` → cluster/compat → `ConversionService` integration. See change `design.md`.
 
 ## P1 — Policy conversion epic (#149)
 
