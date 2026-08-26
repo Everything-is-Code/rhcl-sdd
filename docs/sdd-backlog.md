@@ -30,9 +30,9 @@ Epic [#210](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/
 
 | Change name | GitHub | Scope | Status |
 |-------------|--------|-------|--------|
-| `test-coverage-service-data-layers` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | `service/` root (export, cluster, compat, conversion) + residual dto/model/entity | **Open** — `/opsx-apply` slice 1 (`feature/222-test-coverage-data-layers`) |
+| `test-coverage-service-data-layers` | [#222](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/222) | Slices 1–2: model/entity + `ThreeScaleExportService` WireMock | **Archived** — PRs [#224](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/224), [#225](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/225); slices 3–4 remain on #222 |
 
-Suggested PR order: data layers (or skip) → `ThreeScaleExportService` → cluster/compat → `ConversionService` integration. See change `design.md`.
+Suggested PR order for remaining #222 work: cluster/compat → `ConversionService` integration.
 
 ## P1 — Policy conversion epic (#149)
 
