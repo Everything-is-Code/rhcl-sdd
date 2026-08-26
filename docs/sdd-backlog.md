@@ -12,6 +12,17 @@ Prioritized OpenSpec changes mapped to GitHub issues. Use `/opsx-propose` with t
 | `unified-error-envelope-complete` | #196 | Complete migration: all controllers → envelope, `NotFoundException`, 14 codes, full frontend i18n | **Archived** — OpenSpec `2026-08-25-unified-error-envelope-complete`; PR [#197](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/197) merge pending |
 | `conversion-readme-args` | #170 | Replace `generateReadme(...)` positional note list with structured builder | **Largely addressed on #40 branch** (`ReadmeSupport` + `ReadmeNotes`); close or narrow on #40 merge |
 | `export-performance-baseline` | #169 | Pagination, bulk convert parallelism, History UI pagination | Open |
+| `test-coverage-controller` | #210 | Tier A: `controller` package JaCoCo (lines ≥90%) | **Archived** — OpenSpec `2026-08-26-test-coverage-controller`; PR [#213](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/213) |
+
+## P1 — Test coverage (#210 tiers)
+
+| Change name | GitHub | Scope | Status |
+|-------------|--------|-------|--------|
+| `test-coverage-exception-client` | #210 | Tier: exception + client packages | Open |
+| `test-coverage-conversion-support` | #210 | Tier: `service.conversion` | Open |
+| `test-coverage-generators` | #210 | Tier: `service.generator` | Open |
+| `test-coverage-contributors` | #210 | Tier: `service.generator.contributor` | Open |
+| `test-coverage-dto-model-entity` | #210 | Tier: dto/model/entity (optional) | Open |
 
 ## P1 — Policy conversion epic (#149)
 
