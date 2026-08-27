@@ -27,6 +27,16 @@ Full skill map: `docs/skills-inventory.md`
 
 ## Agents
 
-`solution-architect` · `backend-developer` · `frontend-developer` → `ai-specs/agents/`
+Canonical: `ai-specs/agents/` (mirrored to `.cursor/agents/` and `.claude/agents/`).
+
+| Agent | Role |
+|-------|------|
+| `solution-architect` | `design.md`, architecture, API contracts — no implementation |
+| `backend-developer` | Quarkus/Java — `/opsx-apply` backend tasks |
+| `frontend-developer` | React/PatternFly — `/opsx-apply` frontend tasks |
+| `quality-reviewer` | Independent review after apply, before archive — no fixes |
+| `product-strategy-analyst` | Ideation, use cases, personas (pre-issue / explore) |
+
+After add/rename: `sync-agent-symlinks` skill (includes agent mirrors on Windows).
 
 English only. No application code here except SDD maintenance.

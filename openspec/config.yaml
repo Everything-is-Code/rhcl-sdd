@@ -24,10 +24,13 @@ context: |
   - docs/development_guide.md — local setup and test commands
 
   Agents (adopt when working):
-  - ai-specs/agents/solution-architect.md — design.md, #40 architecture, interfaces, phasing
+  - ai-specs/agents/solution-architect.md — design.md, architecture, interfaces, phasing (no implementation)
   - ai-specs/agents/backend-developer.md — Quarkus / ConversionService implementation
   - ai-specs/agents/frontend-developer.md — SPA implementation
-  - ai-specs/skills/ — enrich-us, commit, code-auditing, using-git-worktrees, …
+  - ai-specs/agents/quality-reviewer.md — independent review after apply, before archive (no fixes)
+  - ai-specs/agents/product-strategy-analyst.md — ideation, use cases, personas (pre-issue)
+  - ai-specs/skills/ — enrich-us, verify-change, verify-fe, code-review, adversarial-review, commit, …
+  - docs/skills-inventory.md — full skill and command map
 
   Issue tracker: GitHub Issues on Everything-is-Code/migration-toolkit-rhcl (not Jira).
   Key epics: #149 policies, #40 conversion refactor, #169 performance, #170 generateReadme.

@@ -28,8 +28,16 @@ Open **`rhcl-sdd.code-workspace`** in Cursor (both repos in one window).
 | 1 | `enrich-us` on GitHub issue |
 | 2 | `/opsx-propose <change-name>` |
 | 3 | `/opsx-apply <change-name>` → edits `../migration-toolkit-rhcl/` |
-| 4 | `/verify` + `/code-review` |
-| 5 | `/opsx-archive` + `/commit` |
+| 4 | `/verify-fe <change>` when `frontend/` or wizard/YAML changed (live 3scale Playwright) |
+| 5 | `/verify <change>` — `mvn test`, `npm test`, `openspec validate` |
+| 6 | `/code-review <change>` |
+| 7 | `/adversarial-review` (fresh session recommended) |
+| 8 | `/opsx-archive <change>` |
+| 9 | `/commit #N` → PR in product repo |
+
+Other commands: `/opsx-explore` · `/opsx-update` · `/opsx-sync`
+
+Full skill map: `docs/skills-inventory.md`
 
 CLI: `openspec list --store rhcl-sdd`
 
@@ -38,21 +46,28 @@ CLI: `openspec list --store rhcl-sdd`
 | File | Purpose |
 |------|---------|
 | `docs/base-standards.md` | Single source of truth |
-| `docs/conversion-architecture.md` | #40 Strategy/Registry/Contributor |
+| `docs/skills-inventory.md` | Skills, commands, canonical workflow |
+| `docs/conversion-architecture.md` | Strategy/Registry/Contributor (#40) |
 | `docs/sdd-backlog.md` | Prioritized changes ↔ GitHub issues |
 | `openspec/config.yaml` | OpenSpec context + apply rules |
 
 ## Agents
 
-| Role | File |
-|------|------|
-| Architect | `ai-specs/agents/solution-architect.md` |
-| Backend | `ai-specs/agents/backend-developer.md` |
-| Frontend | `ai-specs/agents/frontend-developer.md` |
+Canonical source: `ai-specs/agents/` (mirrored to `.cursor/agents/` and `.claude/agents/`).
 
-## Next change
+| Agent | When to use | File |
+|-------|-------------|------|
+| `solution-architect` | Before large changes — `design.md`, API contracts, cross-layer boundaries; does not implement | `ai-specs/agents/solution-architect.md` |
+| `backend-developer` | Quarkus/Java implementation from OpenSpec tasks | `ai-specs/agents/backend-developer.md` |
+| `frontend-developer` | React/PatternFly SPA implementation from OpenSpec tasks | `ai-specs/agents/frontend-developer.md` |
+| `quality-reviewer` | Independent review after `/opsx-apply`, before archive — findings only, no fixes | `ai-specs/agents/quality-reviewer.md` |
+| `product-strategy-analyst` | Ideation, use cases, personas, value props (pre-issue / explore) | `ai-specs/agents/product-strategy-analyst.md` |
 
-`conversion-strategy-registry` (GitHub #40) — after docs/skills baseline is stable.
+After adding or renaming agents, run the `sync-agent-symlinks` skill (also syncs `.cursor/agents/` from `ai-specs/agents/` on Windows).
+
+## Backlog
+
+See `docs/sdd-backlog.md` for active changes. Recent focus: test coverage (#222 PRs), policy conversion epic (#149), export performance (#169).
 
 ## Replaces
 
