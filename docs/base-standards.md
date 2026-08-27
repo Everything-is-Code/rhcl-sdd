@@ -64,11 +64,12 @@ Skills: `ai-specs/skills/` — see [skills-inventory.md](./skills-inventory.md).
    - `git checkout -b feature/<issue>-<change-name>` (example: `feature/41-frontend-component-split`)
    - Record branch name in change `tasks.md` Prerequisites — **never commit implementation on `main`**
 4. `/opsx-apply` → `../migration-toolkit-rhcl/` (on the feature branch)
-5. `/verify` — tests + `openspec validate` + verify-report
-6. `/code-review` — RHCL PR-style review (Major/Moderate/Minor/Nit)
-7. `/adversarial-review` — red-team (fresh session preferred)
-8. `/opsx-archive`
-9. `/commit` — push feature branch + PR on product repo (`Closes #N`)
+5. `/verify-fe` — if `frontend/` touched: Playwright YAML E2E (agent asks for 3scale URL + token in chat)
+6. `/verify` — tests + `openspec validate` + verify-report
+7. `/code-review` — RHCL PR-style review (Major/Moderate/Minor/Nit)
+8. `/adversarial-review` — red-team (fresh session preferred)
+9. `/opsx-archive`
+10. `/commit` — push feature branch + PR on product repo (`Closes #N`)
 
 Store id: `rhcl-sdd` — `openspec list --store rhcl-sdd`
 

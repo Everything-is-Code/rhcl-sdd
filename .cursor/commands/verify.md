@@ -13,6 +13,10 @@ Validate implementation against the active OpenSpec change.
 
 **Action:** Load and follow the **`verify-change`** skill (`ai-specs/skills/verify-change/SKILL.md`).
 
+**Tests run:** `mvn test`, `npm run typecheck`, `npm test`, `openspec validate`.
+
+**Frontend E2E:** Not run here — use **`/verify-fe`** (asks for 3scale URL + token in chat). `/verify` checks for `verify-fe-report.md` when `frontend/` changed.
+
 **Output:** `verify-report.md` in the change folder + PASS/FAIL summary.
 
-**Next:** `/code-review` → `/opsx-archive` → `/commit`
+**Next:** `/verify-fe` (if UI) → `/code-review` → `/opsx-archive` → `/commit`

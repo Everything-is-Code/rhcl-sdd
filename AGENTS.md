@@ -15,7 +15,7 @@ Open `rhcl-sdd.code-workspace` — loads this store + product repo side by side.
 
 ## Commands
 
-`/opsx-explore` · `/opsx-propose` · `/opsx-apply` · `/verify` · `/code-review` · `/adversarial-review` · `/opsx-archive` · `/commit` · `enrich-us`
+`/opsx-explore` · `/opsx-propose` · `/opsx-apply` · `/verify-fe` · `/verify` · `/code-review` · `/adversarial-review` · `/opsx-archive` · `/commit` · `enrich-us`
 
 Full skill map: `docs/skills-inventory.md`
 

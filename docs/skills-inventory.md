@@ -24,6 +24,7 @@ Canonical source: `ai-specs/skills/`. Cursor commands in `.cursor/commands/`.
 | Skill | Role |
 |-------|------|
 | `verify-change` | `/verify` — tests + `openspec validate` + verify-report |
+| `verify-fe` | `/verify-fe` — frontend typecheck/vitest + live Playwright YAML E2E (prompts for 3scale URL + token) |
 | `code-review` | `/code-review` — RHCL Major/Moderate/Minor/Nit PR comment |
 
 ## OpenSpec CLI skills (`.cursor/skills/openspec-*`)
@@ -45,12 +46,15 @@ Installed by `openspec init` — mirror workflow commands:
 enrich-us #N
   → /opsx-propose <change>
   → /opsx-apply <change>
-  → /verify <change>
+  → /verify-fe <change>       # if frontend/ or wizard/YAML — asks URL + token in chat
+  → /verify <change>          # mvn test + npm test + openspec validate
   → /code-review <change>
   → adversarial-review (skill or fresh session)
   → /opsx-archive <change>
   → /commit #N
 ```
+
+**`/verify-fe`:** Playwright wizard + YAML tab checks (`yaml-expectations.ts`). User pastes **Admin URL** and **PAT** in chat; agent uses env vars only for that run — never commits credentials.
 
 Optional: `show-spec-working` after apply; `code-auditing` for release sweeps.
 
