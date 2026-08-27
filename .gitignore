@@ -3,3 +3,7 @@ node_modules/
 _specboot-tmp/
 .DS_Store
 *.log
+
+# Local verify reports (see openspec/changes/_scratch/README.md)
+openspec/changes/_scratch/verify-fe-report.md
+openspec/changes/_scratch/verify-report.md
