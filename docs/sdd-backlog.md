@@ -13,6 +13,18 @@ Prioritized OpenSpec changes mapped to GitHub issues. Use `/opsx-propose` with t
 | `conversion-readme-args` | #170 | Replace `generateReadme(...)` positional note list with structured builder | **Largely addressed on #40 branch** (`ReadmeSupport` + `ReadmeNotes`); close or narrow on #40 merge |
 | `export-performance-baseline` | #169 | Pagination, bulk convert parallelism, History UI pagination | Open |
 
+## P0 — Typed YAML generation (#262)
+
+Epic [#262](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/262): replace `String.formatted()` YAML with typed Java objects (Fabric8 models + hand-written records for Kuadrant CRDs). Supersedes #53 (closed). Behavior-preserving: `skip_specs: true` — `conversion-pipeline`'s existing requirements cover all phases.
+
+| Change name | GitHub | Scope | Status |
+|-------------|--------|-------|--------|
+| `typed-yaml-infra` | #262 | Phase 0 — `model/kuadrant/` records, `ManifestSerializer`, `YamlAssertions`, deps (Jackson YAML, Fabric8 Istio), ArchUnit scaffold | In progress |
+| `typed-yaml-k8s-gateway` | #262 | Phase 1 — Gateway, ConfigMap, Secret + 5 secret contributors → Fabric8 typed models | Proposed — depends on phase 0 |
+| `typed-yaml-istio` | #262 | Phase 2 — ServiceEntry, DestinationRule, 5 EnvoyFilters, Istio AuthorizationPolicy, Telemetry → Fabric8 Istio model | Proposed — depends on phase 0 |
+| `typed-yaml-kuadrant` | #262 | Phase 3 (largest) — AuthPolicy (+10 contributors), RateLimitPolicy, TLS/DNSPolicy, APIProduct, ApiKey → Java records | Proposed — depends on phase 0 |
+| `typed-yaml-httproute` | #262 | Phase 4 (recommended last) — HTTPRoute + 8 contributors + 3 support → Fabric8 Gateway API model | Proposed — depends on phase 0 |
+
 ## P1 — Test coverage (#210) — **closed**
 
 Epic [#210](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/210) **closed** Aug 2026. Codecov `backend` ~37% → ~50–60%; JaCoCo lines ~60% on `main`.
