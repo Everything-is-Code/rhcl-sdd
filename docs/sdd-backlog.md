@@ -19,7 +19,7 @@ Epic [#262](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/
 
 | Change name | GitHub | Scope | Status |
 |-------------|--------|-------|--------|
-| `typed-yaml-infra` | #262 | Phase 0 — `model/kuadrant/` records, `ManifestSerializer`, `YamlAssertions`, deps (Jackson YAML, Fabric8 Istio), ArchUnit scaffold | In progress |
+| `typed-yaml-infra` | #262 | Phase 0 — `model/kuadrant/` records, `ManifestSerializer`, `YamlAssertions`, deps (Jackson YAML, Fabric8 Istio), ArchUnit scaffold | **Archived** — OpenSpec `2026-08-31-typed-yaml-infra`; PR [#263](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/263) |
 | `typed-yaml-k8s-gateway` | #262 | Phase 1 — Gateway, ConfigMap, Secret + 5 secret contributors → Fabric8 typed models | Proposed — depends on phase 0 |
 | `typed-yaml-istio` | #262 | Phase 2 — ServiceEntry, DestinationRule, 5 EnvoyFilters, Istio AuthorizationPolicy, Telemetry → Fabric8 Istio model | Proposed — depends on phase 0 |
 | `typed-yaml-kuadrant` | #262 | Phase 3 (largest) — AuthPolicy (+10 contributors), RateLimitPolicy, TLS/DNSPolicy, APIProduct, ApiKey → Java records | Proposed — depends on phase 0 |
