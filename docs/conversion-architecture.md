@@ -1,5 +1,9 @@
 # Conversion Architecture — Implemented Design (#40)
 
+> **Sync note:** Mirrored in the product repo at  
+> [migration-toolkit-rhcl/documentation/conversion-architecture.md](https://github.com/Everything-is-Code/migration-toolkit-rhcl/blob/main/documentation/conversion-architecture.md).  
+> When updating conversion design, keep both copies aligned (this SDD copy is canonical for OpenSpec).
+
 `ConversionService` (~175 lines) orchestrates conversion: it builds a `ConversionContext` once per call and delegates YAML generation to a **registry of resource generators**. Policy-specific logic lives in generators and contributors under `service/generator/`, not in the orchestrator.
 
 OpenSpec change: `conversion-strategy-registry` (GitHub [#40](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/40)).
