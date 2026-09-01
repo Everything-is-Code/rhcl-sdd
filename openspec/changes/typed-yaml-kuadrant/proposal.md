@@ -11,7 +11,7 @@ This is the largest phase (~18 classes, ~24 call sites) and the highest-value ta
 - `RateLimitPolicyGenerator` + `RateLimitSupport` (5 call sites): construct `RateLimitPolicyManifest` records.
 - `TlsPolicyGenerator`, `DnsPolicyGenerator`, `ApiProductGenerator`, `ApiKeyGenerator`: construct their respective manifest records directly.
 - `JwtClaimCheckSupport`: migrate fragment-building from `.formatted()` to typed record construction.
-- **Behavior-preserving**: output content unchanged. `AuthPolicyContributorDiscoveryTest` CDI discovery unaffected.
+- **Behavior-preserving**: semantic output unchanged for structural fields. RateLimitPolicy inline `# WARNING:` YAML comments are intentionally dropped per `design.md` decision #5 (warnings remain in README via `ReadmeSupport`). `AuthPolicyContributorDiscoveryTest` CDI discovery unaffected.
 
 ## Capabilities
 
