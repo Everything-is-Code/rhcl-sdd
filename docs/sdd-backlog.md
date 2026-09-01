@@ -22,8 +22,8 @@ Epic [#262](https://github.com/Everything-is-Code/migration-toolkit-rhcl/issues/
 | `typed-yaml-infra` | #262 | Phase 0 — `model/kuadrant/` records, `ManifestSerializer`, `YamlAssertions`, deps (Jackson YAML, Fabric8 Istio), ArchUnit scaffold | **Archived** — OpenSpec `2026-08-31-typed-yaml-infra`; PR [#263](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/263) |
 | `typed-yaml-k8s-gateway` | #262 | Phase 1 — Gateway, ConfigMap, Secret + 5 secret contributors → Fabric8 typed models | **Archived** — OpenSpec `2026-08-31-typed-yaml-k8s-gateway`; PR [#264](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/264) (stacked on #263) |
 | `typed-yaml-istio` | #262 | Phase 2 — ServiceEntry, DestinationRule, 5 EnvoyFilters, Istio AuthorizationPolicy, Telemetry → Fabric8 Istio model | **Archived** — OpenSpec `2026-08-31-typed-yaml-istio`; PR [#265](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/265) (stacked on #264) |
-| `typed-yaml-kuadrant` | #262 | Phase 3 (largest) — AuthPolicy (+10 contributors), RateLimitPolicy, TLS/DNSPolicy, APIProduct, ApiKey → Java records | Proposed — depends on phase 0 |
-| `typed-yaml-httproute` | #262 | Phase 4 (recommended last) — HTTPRoute + 8 contributors + 3 support → Fabric8 Gateway API model | Proposed — depends on phase 0 |
+| `typed-yaml-kuadrant` | #262 | Phase 3 (largest) — AuthPolicy (+10 contributors), RateLimitPolicy, TLS/DNSPolicy, APIProduct, ApiKey → Java records | **PR [#266](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/266)** — stacked on #265 |
+| `typed-yaml-httproute` | #262 | Phase 4 (recommended last) — HTTPRoute + 8 contributors + 3 support → Fabric8 Gateway API model | **PR [#267](https://github.com/Everything-is-Code/migration-toolkit-rhcl/pull/267)** — stacked on #266 |
 
 ## P1 — Test coverage (#210) — **closed**
 
