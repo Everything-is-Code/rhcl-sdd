@@ -4,6 +4,9 @@ _specboot-tmp/
 .DS_Store
 *.log
 
+# Engram local project binding (per-developer; see .cursor/rules/engram.mdc)
+.engram/
+
 # Local verify reports (see openspec/changes/_scratch/README.md)
 openspec/changes/_scratch/verify-fe-report.md
 openspec/changes/_scratch/verify-report.md

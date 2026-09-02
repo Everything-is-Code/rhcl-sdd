@@ -1,0 +1,51 @@
+---
+description: Engram memory boundaries for RHCL — OpenSpec is authoritative; dual-write for design/architecture
+alwaysApply: true
+---
+
+# Engram + OpenSpec (RHCL)
+
+Engram MCP is available (project binding is **per-developer** via local `.engram/config.json`, gitignored). Use it proactively — the user must not need to ask.
+
+## Authority (non-negotiable)
+
+| Knowledge | Authoritative store | Engram |
+|-----------|---------------------|--------|
+| Specs, tasks, acceptance criteria, change artifacts | `openspec/changes/` → archive to `openspec/specs/` | Never substitute |
+| New SDD work | OpenSpec only (`/opsx-propose` … `/opsx-archive`) | Do not use legacy `sdd/{change}/*` Engram-only workflow |
+| Standards, backlog | `docs/base-standards.md`, `docs/sdd-backlog.md` | Link only; do not duplicate full text |
+| **Design / architecture decisions** | **`design.md` (and related OpenSpec artifacts) in the SDD store** | **Also `mem_save` (dual-write)** |
+| Session gotchas, CI/workflow, preferences, PR patterns | Engram | Primary |
+| Code structure | CodeGraph + repo | Engram for *why*, not *where* |
+
+See `docs/sdd-backlog.md` (Engram migration) and product `AGENTS.md` (SDD section).
+
+## Dual-write for design and architecture
+
+When a **design or architecture decision** is made or updated:
+
+1. **SDD first** — record it in the active change’s `design.md` (or propose/update via OpenSpec workflow). That is the team-facing source of truth.
+2. **Engram second** — `mem_save` with:
+   - `type`: `architecture` or `decision`
+   - `topic_key`: `rhcl/architecture/<stable-slug>` (reuse to update the same topic)
+   - `content`: What / Why / Where — include the **OpenSpec path** (e.g. `openspec/changes/foo/design.md`) so memory points to the canonical doc
+
+If the decision exists only in Engram, it is incomplete — fix the SDD artifact.
+
+## When to save (agent-initiated)
+
+Call `mem_save` after: bugfix, design/architecture decision (after SDD write), non-obvious discovery, config/setup, established pattern, user preference.
+
+Use `mem_suggest_topic_key` when unsure; reuse keys for evolving topics.
+
+## When to search (agent-initiated)
+
+At start of related work: `mem_context`, then `mem_search` if needed. On recall requests (“remember”, “recordar”, etc.): `mem_context` → `mem_search` → `mem_get_observation`.
+
+For architecture questions, prefer OpenSpec `design.md` + Engram search together — SDD wins on conflict.
+
+## Session close
+
+Before ending substantial work: `mem_session_summary` (Goal, Discoveries, Accomplished, Next Steps, Relevant Files).
+
+After compaction: `mem_session_summary` first, then `mem_context`.
