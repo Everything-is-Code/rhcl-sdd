@@ -36,5 +36,5 @@
 
 ## 8. Verification
 
-- [ ] 8.1 Manual check (cluster reachable): Convert → YAML edit → Validate → Download → Apply → History shows CONVERT entry; verify partial failure shows per-file errors in result table
-- [ ] 8.2 Manual check (cluster unreachable): Apply disabled with actionable banner; verify no apply request sent
+- [x] 8.1 Manual check (cluster reachable): Convert → YAML edit → Validate → Download → Apply → History shows CONVERT entry; verify partial failure shows per-file errors in result table
+- [x] 8.2 Manual check (cluster unreachable): Apply disabled with actionable banner; verify no apply request sent
